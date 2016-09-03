@@ -1,0 +1,74 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+.loginButtons {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+#content-container {
+  margin-top: 40px;
+}
+
+#workdesk {
+  display: flex;
+  width: 100%;
+  height: 99%;
+}
+
+#showFiles {
+  width: 13%;
+  height: 100%;
+  overflow: auto;
+}
+
+#showFilesControls {
+  position: fixed;
+  top: 0;
+  left: 5px;
+}
+
+#workdesk2 {
+  display: flex;
+  width: 87%;
+  height: 100%;
+}
+
+#workdesk2 form {
+  width: 48%;
+  height: 100%;
+  margin-left: 1%;
+  overflow: auto;
+}
+
+.CodeMirror {
+  width: 100%;
+  height: 100% !important;
+}
+
+#fileIFrame {
+  width: 50%;
+  height: 100%;
+  margin-left: 1%;
+}
+
+#fileIFrame iframe {
+  width: 100%;
+  height: 100%;
+}
+
+#CMButtons {
+  position: fixed;
+  top: 0;
+  left: 20%;
+  z-index: 1000;
+}
+
+#editor {
+  position: relative;
+  height: 100%;
+}
