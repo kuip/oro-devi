@@ -72,3 +72,7 @@ html, body {
   position: relative;
   height: 100%;
 }
+
+.fit {
+  height: 100%;
+}
