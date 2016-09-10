@@ -55,6 +55,7 @@ FileDisplay = React.createClass({
 
   componentDidMount() {
     //console.log('componentDidMount')
+    $(document.head).append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
   },
 
   componentDidUpdate(nprops, nstate) {
@@ -105,8 +106,10 @@ FileDisplay = React.createClass({
       ],function(_, SVG, Raphael, nomnoml) { 
         require([
           "/api/file/sequence-diagrams.js",
+          "/api/file/railroad-diagrams.js",
           "/api/file/marked.js"
-        ],function(Diagram) {
+        ],function(Diagram,Railroad) {
+          window = Object.assign(window, Railroad)
           //$("#markdown"+doc._id ).empty()
           $('#canvas-panner').parents().css({width: '100%', height: '100%'})
           var script = marked(doc.script)
