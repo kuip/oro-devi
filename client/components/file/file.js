@@ -92,6 +92,8 @@ FileDisplay = React.createClass({
     //console.log('render')
     //console.log(this.props.file)
     var doc = this.props.file.doc
+    if(!doc)
+      return null;
     if(['jpeg', 'jpg', 'png'].indexOf(doc.extension) !== -1 && doc.script)
       return React.createElement("img",
         {src: doc.script}
