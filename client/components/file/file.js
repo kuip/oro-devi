@@ -92,6 +92,8 @@ FileDisplay = React.createClass({
     //console.log('render')
     //console.log(this.props.file)
     var doc = this.props.file.doc
+    if(!doc)
+      return null;
     if(['jpeg', 'jpg', 'png'].indexOf(doc.extension) !== -1 && doc.script)
       return React.createElement("img",
         {src: doc.script}
@@ -332,6 +334,10 @@ UploadFile = React.createClass({
       })
   },
 
+  uploadFile: function(event) {
+    event.preventDefault();
+  },
+
   render: function render() {
     var options = Object.keys(ORO.F.File.mimes())
 
@@ -376,6 +382,11 @@ UploadFile = React.createClass({
             "button",
             { type: "button", className: "btn-primary", onClick: this.deleteFile},
             "Delete"
+          ),
+          React.createElement(
+            "button",
+            { type: "button", className: "btn-primary", onClick: this.uploadFile},
+            "Upload"
           ),
           this.state.file ?
             React.createElement('a',
