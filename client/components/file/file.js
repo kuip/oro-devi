@@ -334,6 +334,10 @@ UploadFile = React.createClass({
       })
   },
 
+  uploadFile: function(event) {
+    event.preventDefault();
+  },
+
   render: function render() {
     var options = Object.keys(ORO.F.File.mimes())
 
@@ -378,6 +382,11 @@ UploadFile = React.createClass({
             "button",
             { type: "button", className: "btn-primary", onClick: this.deleteFile},
             "Delete"
+          ),
+          React.createElement(
+            "button",
+            { type: "button", className: "btn-primary", onClick: this.uploadFile},
+            "Upload"
           ),
           this.state.file ?
             React.createElement('a',
