@@ -66,6 +66,18 @@ html, body {
   top: 0;
   left: 20%;
   z-index: 1000;
+} 
+
+#fileDrop {
+  width: 99%;
+  height: 100px;
+  border: black;
+  border-width: 1px;
+  border-style: dashed;
+}
+
+.hovered {
+  background: beige;
 }
 
 #editor {

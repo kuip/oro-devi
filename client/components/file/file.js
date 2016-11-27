@@ -334,8 +334,9 @@ UploadFile = React.createClass({
       })
   },
 
-  uploadFile: function(event) {
+  toggleUpload: function(event) {
     event.preventDefault();
+    this.setState({ upload:  (this.state.upload ? false : true) });
   },
 
   render: function render() {
@@ -385,7 +386,7 @@ UploadFile = React.createClass({
           ),
           React.createElement(
             "button",
-            { type: "button", className: "btn-primary", onClick: this.uploadFile},
+            { type: "button", className: "btn-primary", onClick: this.toggleUpload},
             "Upload"
           ),
           this.state.file ?
@@ -395,12 +396,39 @@ UploadFile = React.createClass({
             )
             : null
           ),
+          this.state.upload ? React.createElement(OroUpload) : null,
+
           //React.createElement("textarea", { cols: 100, rows: 30 , name: 'textarea', id: 'code'}),
         
           //React.createElement(LoadCodeMirror, {textarea: "code", props: this.props, ref: 'CM'})
           React.createElement('div', {id: 'editor'}),
           React.createElement(LoadAce, {textarea: 'editor', props: this.props, ref: 'CM'})
       )
+  }
+})
+
+OroUpload = React.createClass({
+  getInitialState: function getInitialState() {
+    return { progress: -1, background: '' };
+  },
+
+  onMouseOver: function() {
+    this.setState({ background: 'hovered' });
+  },
+
+  onMouseOut: function() {
+    this.setState({ background: '' });
+  },
+
+  render: function () {
+    OroUploads.resumable.assignDrop($('.fileDrop'));
+    return React.createElement("div",
+        { id: "fileDrop", 
+          onMouseOver: this.onMouseOver,
+          onMouseOut: this.onMouseOut,
+          className: "fileDrop " + this.state.background
+        }
+      );
   }
 })
 
