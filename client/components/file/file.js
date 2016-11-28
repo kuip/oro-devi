@@ -1,3 +1,5 @@
+import React from 'react';
+
 Tracker.autorun(function() {
   var dim = Session.get('window')
   if(dim)
@@ -22,7 +24,7 @@ FileComponent = React.createClass({
 
   getMeteorData: function getMeteorData() {
     //console.log('FileComponent getMeteorData')
-    console.log(this.props.params)
+    //console.log(this.props.params)
     var handle = Meteor.subscribe('file', {title: this.props.params.splat})
     //this.file.subscribe()
     //this.file.trackDoc()
@@ -44,38 +46,79 @@ FileComponent = React.createClass({
 
 FileDisplay = React.createClass({
 
-  /*mixins: [ReactMeteorData],
+  componentWillMount() {
+    console.log('FileDisplay componentWillMount');
+    var doc = this.props.file.doc;
 
-  getMeteorData: function getMeteorData() {
-    var subsReady = this.props.file.subscriptionHandle.ready()
-    return {
-      subsReady: subsReady
+    if(!doc)
+      return;
+
+    $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
+
+    if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/raphael.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/nomnoml.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/sequence-diagrams.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/railroad-diagrams.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/marked.js"></script>');
     }
-  },*/
+    if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/svgpan.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/nomnoml.js"></script>');
+    }
+    if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/raphael.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.min.2.0.0.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/sequence-diagram2.js"></script>');
+    }
+  },
 
   componentDidMount() {
-    //console.log('componentDidMount')
-    $(document.head).append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
+    console.log('componentDidMount')
+    var doc = this.props.file.doc
+
+    if(!doc)
+      return;
+
+    if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
+      //window = Object.assign(window, Railroad)
+      //$("#markdown"+doc._id ).empty()
+      $('#canvas-panner').parents().css({width: '100%', height: '100%'})
+      var script = marked(doc.script)
+      $('#canvas-panner').html(script)
+    }
+    if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
+      $('#canvas-panner').parents().css({width: '100%', height: '100%'})
+      var canv = document.getElementById('canvas-panner')
+      var source = '#edges: hard\n' + doc.script
+      nomnoml.draw(canv, source);
+    }
+    if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
+      if(!svgPan)
+        if(typeof root !== 'undefined')
+          svgPan = root.svgPan
+      if(!svgPan)
+        svgPan = window.svgPan
+      if(!Diagram)
+        if(typeof root !== 'undefined')
+          Diagram = root.Diagram
+      if(!Diagram)
+        Diagram = window.Diagram
+
+      $("#nomnomlseq"+doc._id).empty()
+      $("#nomnomlseq"+doc._id).parents().css({width: '100%', height: '100%'})
+      var source = Diagram.parse(doc.script)
+      source.drawSVG("nomnomlseq"+doc._id, {theme: 'simple'})
+    }
   },
 
   componentDidUpdate(nprops, nstate) {
-    //console.log('componentDidUpdate')
-    /*var doc = nprops.file.doc
-    if(doc && ['uml'].indexOf(doc.extension) !== -1 && doc.script) {
-      require([
-        "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
-        "/api/file/_devicore/nomnoml_ct/lib/svgpan.js",
-        "/api/file/_devicore/nomnoml_ct/nomnoml.js",
-      ],function() {
-        console.log('here')
-        console.log($('#canvas-panner')[0])
-        //$('#canvas-panner').empty()
-        $('#canvas-panner').parents().css({width: '100%', height: '100%'})
-        var canv = document.getElementById('canvas-panner')
-        var source = '#edges: hard\n' + doc.script
-        nomnoml.draw(canv, source);
-      })
-    }*/
+    
   },
 
   componentWillUnmount() {
@@ -87,10 +130,6 @@ FileDisplay = React.createClass({
   },
 
   render: function render() {
-    //if(!this.data.subsReady)
-    //  return React.createElement("div")
-    //console.log('render')
-    //console.log(this.props.file)
     var doc = this.props.file.doc
     if(!doc)
       return null;
@@ -100,7 +139,7 @@ FileDisplay = React.createClass({
       )
 
     if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
-      require([
+      /*require([
         "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
         "/api/file/_devicore/svg.min.js",
         "/api/file/_devicore/raphael.min.js",
@@ -117,7 +156,7 @@ FileDisplay = React.createClass({
           var script = marked(doc.script)
           $('#canvas-panner').html(script)
         })
-      })
+      })*/
 
 
       return React.createElement('div',
@@ -126,7 +165,7 @@ FileDisplay = React.createClass({
     }
 
     if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
-      require([
+      /*require([
         "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
         "/api/file/_devicore/nomnoml_ct/lib/svgpan.js",
         "/api/file/_devicore/nomnoml_ct/nomnoml.js",
@@ -136,7 +175,7 @@ FileDisplay = React.createClass({
         var canv = document.getElementById('canvas-panner')
         var source = '#edges: hard\n' + doc.script
         nomnoml.draw(canv, source);
-      })
+      })*/
       //console.log('here uml')
       return React.createElement('div',
           {id: 'canvas-panner', style: {height: '100%', width: '100%'}}
@@ -144,7 +183,7 @@ FileDisplay = React.createClass({
     }
 
     if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
-      require([
+      /*require([
         "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
         "/api/file/_devicore/nomnoml_ct/lib/svgpan.js",
         "/api/file/_devicore/raphael.min.js",
@@ -169,15 +208,8 @@ FileDisplay = React.createClass({
           $("#nomnomlseq"+doc._id).parents().css({width: '100%', height: '100%'})
           var source = Diagram.parse(doc.script)
           source.drawSVG("nomnomlseq"+doc._id, {theme: 'simple'})
-          
-          /*$('svg').prepend('<g></g>')
-          var parent = $($('g')[0])
-          $('svg').children().slice(1).forEach(function(k) {
-            parent.append(k[0])
-          })*/
-          //svgPan('');//app-container
         })
-      })
+      })*/
 
       return React.createElement(
         "div",
@@ -339,6 +371,12 @@ UploadFile = React.createClass({
     this.setState({ upload:  (this.state.upload ? false : true) });
   },
 
+  loadNeural: function() {
+    console.log(this.state);
+    if(this.state && this.state.file);
+      Neurals.loadJson(this.state.file.script);
+  },
+
   render: function render() {
     var options = Object.keys(ORO.F.File.mimes())
 
@@ -389,6 +427,12 @@ UploadFile = React.createClass({
             { type: "button", className: "btn-primary", onClick: this.toggleUpload},
             "Upload"
           ),
+          this.state.file && this.state.file.extension == 'json' ? 
+            React.createElement(
+              "button",
+              { type: "button", className: "btn-primary", onClick: this.loadNeural},
+              "Load Keras Model"
+            ) : null,
           this.state.file ?
             React.createElement('a',
               {href: '/file/' + this.state.file.title, target: '_blank'},
@@ -398,10 +442,6 @@ UploadFile = React.createClass({
           ),
           this.state.upload ? React.createElement(OroUpload) : null,
 
-          //React.createElement("textarea", { cols: 100, rows: 30 , name: 'textarea', id: 'code'}),
-        
-          //React.createElement(LoadCodeMirror, {textarea: "code", props: this.props, ref: 'CM'})
-          React.createElement('div', {id: 'editor'}),
           React.createElement(LoadAce, {textarea: 'editor', props: this.props, ref: 'CM'})
       )
   }
@@ -457,54 +497,7 @@ WebcamImage = React.createClass({
         "Take Pic"
       )
   }
-})
-
-LoadCodeMirror = React.createClass({
-
-  getInitialState() {
-    return {
-      cm: null
-    };
-  },
-
-  render: function render() {
-    var self = this
-    if(!self.state.cm) {
-
-      require([
-        "/api/file/lib/codemirror.js",
-        "/api/file/lib/codemirror/mode/javascript.js"
-      ], 
-      function(CodeMirror) {
-        self.state.cm = CodeMirror.fromTextArea(document.getElementById(self.props.textarea), {
-          lineNumbers: true,
-          lineWrapping: true,
-          mode: 'javascript'
-        });
-      });
-    }
-    Tracker.autorun(function() {
-      var file = Session.get('loadedFile')
-      if(!self.state.cm && file)
-        Session.set('loadedFile', null)
-      else if(self.state.cm && file && file.script) {
-        self.state.cm.setValue(file.script)
-        var mode = FileClass.CMmode(file.extension)
-        var api = "/api/file/lib/codemirror/mode/" + mode + ".js"
-        require([
-          api
-        ], function() {
-          if(file.extension == 'json')
-            mode = {name: "javascript", json: true}
-          self.state.cm.setOption("mode", mode)
-        })
-      }
-    })
-    return React.createElement('p')
-  }
-})
-
-
+});
 
 ShowFiles = React.createClass({
 
@@ -592,7 +585,7 @@ ShowFiles2 = React.createClass({
 
   loadScript: function(e) {
     e.preventDefault()
-    var id = $(e.target).parent().attr('id')
+    var id = $(e.target).attr('id')
     var file = this.props.files.find({_id: id})[0]
     Session.set('loadedFile', file)
   },
@@ -735,16 +728,14 @@ LoadAce = React.createClass({
     };
   },
 
-  render: function render() {
+  componentWillMount() {
+    $('head').append('<script type="application/javascript" src="/api/file/ace/noconflict/ace.js"></script>');
+    $('head').append('<script type="application/javascript" src="/api/file/ace/noconflict/ext-searchbox.js"></script>');
+  },
+
+  componentDidMount() {
     var self = this
     if(!self.state.cm) {
-
-      require([
-        "/api/file/ace/noconflict/ace.js",
-
-        //"/api/file/ace/noconflict/theme/chrome.js",
-      ], 
-      function(ace) {
         if(!ace)
           if(typeof root !== 'undefined')
             ace = root.ace
@@ -755,10 +746,6 @@ LoadAce = React.createClass({
         //self.state.cm.setTheme("ace/theme/chrome");
         self.state.cm.$blockScrolling = Infinity
         self.state.cm.session.setUseWrapMode(true)
-
-        require(["/api/file/ace/noconflict/ext-searchbox.js"],
-          function() {})
-      });
     }
     Tracker.autorun(function() {
       var file = Session.get('loadedFile')
@@ -768,13 +755,17 @@ LoadAce = React.createClass({
         self.state.cm.setValue(file.script)
         var mode = FileClass.AceMode(file.extension)
         var api = "/api/file/ace/noconflict/mode/" + mode + ".js"
-        require([
-          api
-        ], function() {
+        $('head').append('<script type="application/javascript" src="' + api + '"></script>');
+        //require([
+        //  api
+        //], function() {
           self.state.cm.session.setMode("ace/mode/" + mode);
-        })
+        //})
       }
     })
-    return null
+  },
+
+  render: function render() {
+    return React.createElement('div', {id: 'editor'});
   }
 })

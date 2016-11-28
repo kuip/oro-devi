@@ -1,3 +1,5 @@
+import React from 'react';
+
 AuthErrors = React.createClass({
   propTypes: {
     errors: React.PropTypes.object

@@ -1,3 +1,5 @@
+import React from 'react';
+
 ConnectionIssueDialog = React.createClass({
   displayName: "ConnectionIssueDialog",
 

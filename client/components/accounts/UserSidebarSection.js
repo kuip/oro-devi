@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactRouter from 'react-router';
+
 var Link = ReactRouter.Link;
 
 UserSidebarSection = React.createClass({
