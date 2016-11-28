@@ -43,5 +43,6 @@ perak:markdown
 jabbslad:basic-auth
 dburles:mongo-collection-instances
 
+vsivsi:file-collection
 
 loredanacirstea:oroboro-controller
