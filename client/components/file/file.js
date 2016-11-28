@@ -555,7 +555,7 @@ ShowFiles2 = React.createClass({
 
   loadScript: function(e) {
     e.preventDefault()
-    var id = $(e.target).parent().attr('id')
+    var id = $(e.target).attr('id')
     var file = this.props.files.find({_id: id})[0]
     Session.set('loadedFile', file)
   },
