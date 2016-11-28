@@ -69,7 +69,7 @@ ServerRoutable = class ServerRoutable extends Routable{
   }
 
   addRoute(path, serverAppInst) {
-    super(path, serverAppInst)
+    super.addRoute(path, serverAppInst)
     if(Meteor.isServer) {
       Picker.route(path, serverAppInst.callb);
     }
@@ -87,7 +87,7 @@ ClientRoutable = class ClientRoutable extends Routable{
   }
 
   addRoute(path, serverAppInst) {
-    super(path, serverAppInst)
+    super.addRoute(path, serverAppInst)
   }
 
   executeRoute() {

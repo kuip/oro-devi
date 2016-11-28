@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactRouter from 'react-router';
+
 const Link = ReactRouter.Link;
 
 // true if we should show an error dialog when there is a connection error.

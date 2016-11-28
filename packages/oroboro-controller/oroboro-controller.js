@@ -603,7 +603,7 @@ OController.MultipleChoiceButton = class extends OController.ChoiceButton {
   }
 
   createValueButtons() {
-    super()
+    super.createValueButtons()
     var self = this
     self.components.valuebuttons.forEach(function(i, ind) {
       i.click(null)
@@ -822,7 +822,7 @@ OController.UnboundButton = class extends OController.Button {
   }
 
   show() {
-    super()
+    super.show()
     var self = this
     self.components.powtext = self.button.text(self.pow.get().toString())
     self.components.powtext.x(self.position.x)
@@ -899,7 +899,7 @@ OController.UnboundButton = class extends OController.Button {
 
   createValueButtonsElements() {
     var self = this
-    var elements = super()
+    var elements = super.createValueButtonsElements()
 
     self.components.stopValue.text('10')
 
@@ -1461,12 +1461,12 @@ OController.BlendColor = class extends OController.ColorButton {
   }
 
   show() {
-    super()
+    super.show()
     this.components.middlecircle.forward().opacity(1)
   }
 
   createValueButtonsElements() {
-    var elements = super()
+    var elements = super.createValueButtonsElements()
     var self = this
 
     self.components.startvaluebutton.opacity(1).fill(this.color1).stroke({color: '#000', width: 1})

@@ -1,3 +1,5 @@
+import React from 'react';
+
 AuthFormInput = React.createClass({
   displayName: "AuthFormInput",
 

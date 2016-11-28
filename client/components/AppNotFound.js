@@ -1,3 +1,5 @@
+import React from 'react';
+
 AppNotFound = React.createClass({
   displayName: "AppNotFound",
 

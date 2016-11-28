@@ -1,9 +1,6 @@
-var _ReactRouter = ReactRouter;
-var Router = _ReactRouter.Router;
-var Route = _ReactRouter.Route;
-var IndexRoute = _ReactRouter.IndexRoute;
-
-var createHistory = ReactRouter.history.createHistory;
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
 
 var routes = React.createElement(
   Route,
@@ -18,7 +15,7 @@ var routes = React.createElement(
 
 var router = React.createElement(
   Router,
-  { history: createHistory() },
+  { history: browserHistory },
   routes
 );
 

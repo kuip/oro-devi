@@ -1,3 +1,5 @@
+import React from 'react';
+
 var curvetype = new ReactiveVar('algo1'),
   isClosed = new ReactiveVar(1),
   attd = new ReactiveVar(30)

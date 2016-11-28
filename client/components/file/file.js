@@ -1,3 +1,5 @@
+import React from 'react';
+
 Tracker.autorun(function() {
   var dim = Session.get('window')
   if(dim)
@@ -339,6 +341,12 @@ UploadFile = React.createClass({
     this.setState({ upload:  (this.state.upload ? false : true) });
   },
 
+  loadNeural: function() {
+    console.log(this.state);
+    if(this.state && this.state.file);
+      Neurals.loadJson(this.state.file.script);
+  },
+
   render: function render() {
     var options = Object.keys(ORO.F.File.mimes())
 
@@ -389,6 +397,12 @@ UploadFile = React.createClass({
             { type: "button", className: "btn-primary", onClick: this.toggleUpload},
             "Upload"
           ),
+          this.state.file && this.state.file.extension == 'json' ? 
+            React.createElement(
+              "button",
+              { type: "button", className: "btn-primary", onClick: this.loadNeural},
+              "Load Keras Model"
+            ) : null,
           this.state.file ?
             React.createElement('a',
               {href: '/file/' + this.state.file.title, target: '_blank'},
@@ -398,10 +412,6 @@ UploadFile = React.createClass({
           ),
           this.state.upload ? React.createElement(OroUpload) : null,
 
-          //React.createElement("textarea", { cols: 100, rows: 30 , name: 'textarea', id: 'code'}),
-        
-          //React.createElement(LoadCodeMirror, {textarea: "code", props: this.props, ref: 'CM'})
-          React.createElement('div', {id: 'editor'}),
           React.createElement(LoadAce, {textarea: 'editor', props: this.props, ref: 'CM'})
       )
   }
@@ -457,54 +467,7 @@ WebcamImage = React.createClass({
         "Take Pic"
       )
   }
-})
-
-LoadCodeMirror = React.createClass({
-
-  getInitialState() {
-    return {
-      cm: null
-    };
-  },
-
-  render: function render() {
-    var self = this
-    if(!self.state.cm) {
-
-      require([
-        "/api/file/lib/codemirror.js",
-        "/api/file/lib/codemirror/mode/javascript.js"
-      ], 
-      function(CodeMirror) {
-        self.state.cm = CodeMirror.fromTextArea(document.getElementById(self.props.textarea), {
-          lineNumbers: true,
-          lineWrapping: true,
-          mode: 'javascript'
-        });
-      });
-    }
-    Tracker.autorun(function() {
-      var file = Session.get('loadedFile')
-      if(!self.state.cm && file)
-        Session.set('loadedFile', null)
-      else if(self.state.cm && file && file.script) {
-        self.state.cm.setValue(file.script)
-        var mode = FileClass.CMmode(file.extension)
-        var api = "/api/file/lib/codemirror/mode/" + mode + ".js"
-        require([
-          api
-        ], function() {
-          if(file.extension == 'json')
-            mode = {name: "javascript", json: true}
-          self.state.cm.setOption("mode", mode)
-        })
-      }
-    })
-    return React.createElement('p')
-  }
-})
-
-
+});
 
 ShowFiles = React.createClass({
 
@@ -735,16 +698,14 @@ LoadAce = React.createClass({
     };
   },
 
-  render: function render() {
+  componentWillMount() {
+    $('head').append('<script type="application/javascript" src="/api/file/ace/noconflict/ace.js"></script>');
+    $('head').append('<script type="application/javascript" src="/api/file/ace/noconflict/ext-searchbox.js"></script>');
+  },
+
+  componentDidMount() {
     var self = this
     if(!self.state.cm) {
-
-      require([
-        "/api/file/ace/noconflict/ace.js",
-
-        //"/api/file/ace/noconflict/theme/chrome.js",
-      ], 
-      function(ace) {
         if(!ace)
           if(typeof root !== 'undefined')
             ace = root.ace
@@ -755,10 +716,6 @@ LoadAce = React.createClass({
         //self.state.cm.setTheme("ace/theme/chrome");
         self.state.cm.$blockScrolling = Infinity
         self.state.cm.session.setUseWrapMode(true)
-
-        require(["/api/file/ace/noconflict/ext-searchbox.js"],
-          function() {})
-      });
     }
     Tracker.autorun(function() {
       var file = Session.get('loadedFile')
@@ -775,6 +732,9 @@ LoadAce = React.createClass({
         })
       }
     })
-    return null
+  },
+
+  render: function render() {
+    return React.createElement('div', {id: 'editor'});
   }
 })
