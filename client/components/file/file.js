@@ -412,11 +412,13 @@ OroUpload = React.createClass({
     return { progress: -1, background: '' };
   },
 
-  onMouseOver: function() {
+  onDragEnter: function() {
+    console.log('onDragEnter');
     this.setState({ background: 'hovered' });
   },
 
   onMouseOut: function() {
+    console.log('onMouseOut');
     this.setState({ background: '' });
   },
 
@@ -424,7 +426,7 @@ OroUpload = React.createClass({
     OroUploads.resumable.assignDrop($('.fileDrop'));
     return React.createElement("div",
         { id: "fileDrop", 
-          onMouseOver: this.onMouseOver,
+          onDragEnter: this.onDragEnter,
           onMouseOut: this.onMouseOut,
           className: "fileDrop " + this.state.background
         }
