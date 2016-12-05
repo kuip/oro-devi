@@ -99,14 +99,16 @@ FileDisplay = React.createClass({
     // We are in an *index* template file
     if(doc.extension == 'tmpl' && doc.title.indexOf('index') >= 0 && doc.script) {
       let files = this.props.files,
+        heads = '',
         title, script;
 
       // Load all Blaze templates that are dependencies (same folder as this index file)
+      // If the template contains a <head></head>, 
+      // we clear the default head tag and put the new content in it
       files.forEach((f) => {
         script = f.script;
         if(f.extension == 'tmpl') {
 
-          // If the template contains a <head></head>, we put the content in head
           let idx1 = script.indexOf('<head>'),
             idx2 = script.indexOf('</head>');
 
@@ -114,14 +116,14 @@ FileDisplay = React.createClass({
             let head = script.substring(idx1+6, idx2);
             script = script.substring(0, idx1) + script.substring(idx2+7);
             head = head.replace(/(?:\r\n|\r|\n|\t)/gm, '');
-            $('head').append(head);
+            heads += head;
           }
           title = f.title.substring(f.title.lastIndexOf('/')+1, f.title.indexOf('.' + doc.extension));
           Template[title] = Template.fromString(script);
         }
       });
 
-      // 
+      $('head').html(heads);
     }
   },
 
