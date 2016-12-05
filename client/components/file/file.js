@@ -96,15 +96,32 @@ FileDisplay = React.createClass({
       $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
     }
 
-    // Load all Blaze templates that are dependencies (same folder as this index file)
+    // We are in an *index* template file
     if(doc.extension == 'tmpl' && doc.title.indexOf('index') >= 0 && doc.script) {
       let files = this.props.files,
-        title;
+        title, script;
 
+      // Load all Blaze templates that are dependencies (same folder as this index file)
       files.forEach((f) => {
-        title = f.title.substring(f.title.lastIndexOf('/')+1, f.title.indexOf('.' + doc.extension));
-        Template[title] = Template.fromString(f.script);
+        script = f.script;
+        if(f.extension == 'tmpl') {
+
+          // If the template contains a <head></head>, we put the content in head
+          let idx1 = script.indexOf('<head>'),
+            idx2 = script.indexOf('</head>');
+
+          if(idx1 >= 0) {
+            let head = script.substring(idx1+6, idx2);
+            script = script.substring(0, idx1) + script.substring(idx2+7);
+            head = head.replace(/(?:\r\n|\r|\n|\t)/gm, '');
+            $('head').append(head);
+          }
+          title = f.title.substring(f.title.lastIndexOf('/')+1, f.title.indexOf('.' + doc.extension));
+          Template[title] = Template.fromString(script);
+        }
       });
+
+      // 
     }
   },
 
