@@ -1,4 +1,7 @@
 import React from 'react';
+import { Template } from 'meteor/templating';
+import { Blaze } from 'meteor/blaze';
+import 'meteor/numtel:template-from-string';
 
 Tracker.autorun(function() {
   var dim = Session.get('window')
@@ -25,14 +28,29 @@ FileComponent = React.createClass({
   getMeteorData: function getMeteorData() {
     //console.log('FileComponent getMeteorData')
     //console.log(this.props.params)
-    var handle = Meteor.subscribe('file', {title: this.props.params.splat})
+    let handle, 
+      title = this.props.params.splat,
+      idx1 = title.lastIndexOf('/'),
+      idx2 = title.indexOf('.tmpl'),
+      folder = title.substring(0, idx1),
+      name = title.substring(idx1+1, idx2);
+
+    if(idx2 > 0) {
+      handle = Meteor.subscribe('files', {title: {$regex: folder, $options: 'i'}});
+    }
+    else {
+      handle = Meteor.subscribe('file', {title: title})
+    }
     //this.file.subscribe()
     //this.file.trackDoc()
     if(handle.ready())
       return {
         //file: this.file,
         //subsReady: this.file.subscriptionHandle.ready()
-        file: {doc: OroFile.findOne({title: this.props.params.splat})}
+        file: {doc: OroFile.findOne({title: title})},
+        files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
+        folder,
+        name
       }
 
     return {}
@@ -40,7 +58,7 @@ FileComponent = React.createClass({
 
   render: function render() {
     //console.log('FileComponent render: ' + this.data.subsReady)
-    return this.data.file ? React.createElement(FileDisplay, {file: this.data.file}) : null
+    return this.data.file ? React.createElement(FileDisplay, this.data) : null
   }
 });
 
@@ -48,12 +66,10 @@ FileDisplay = React.createClass({
 
   componentWillMount() {
     console.log('FileDisplay componentWillMount');
-    var doc = this.props.file.doc;
+    let doc = this.props.file.doc;
 
     if(!doc)
       return;
-
-    $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
 
     if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
@@ -63,11 +79,13 @@ FileDisplay = React.createClass({
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/sequence-diagrams.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/railroad-diagrams.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/marked.js"></script>');
+      $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
     }
     if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/svgpan.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/nomnoml.js"></script>');
+      $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
     }
     if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/nomnoml_ct/lib/lodash.min.js"></script>');
@@ -75,6 +93,18 @@ FileDisplay = React.createClass({
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/raphael.min.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.min.2.0.0.js"></script>');
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/sequence-diagram2.js"></script>');
+      $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
+    }
+
+    // Load all Blaze templates that are dependencies (same folder as this index file)
+    if(doc.extension == 'tmpl' && doc.title.indexOf('index') >= 0 && doc.script) {
+      let files = this.props.files,
+        title;
+
+      files.forEach((f) => {
+        title = f.title.substring(f.title.lastIndexOf('/')+1, f.title.indexOf('.' + doc.extension));
+        Template[title] = Template.fromString(f.script);
+      });
     }
   },
 
@@ -114,6 +144,12 @@ FileDisplay = React.createClass({
       $("#nomnomlseq"+doc._id).parents().css({width: '100%', height: '100%'})
       var source = Diagram.parse(doc.script)
       source.drawSVG("nomnomlseq"+doc._id, {theme: 'simple'})
+    }
+
+    if(['tmpl'].indexOf(doc.extension) != -1) {
+      let name = this.props.name;
+      if(Template[name])
+        Blaze.renderWithData(Template[name], {}, document.getElementById('Template_' + doc._id));
     }
   },
 
@@ -161,6 +197,13 @@ FileDisplay = React.createClass({
       return React.createElement(
         "div",
         { className: "FileComponent" , dangerouslySetInnerHTML: this.createMarkup(doc.script)}
+        )
+    }
+
+    if(['tmpl'].indexOf(doc.extension) != -1) {
+      return React.createElement(
+        "div",
+        { className: "FileComponent" , id: 'Template_' + doc._id }
         )
     }
 

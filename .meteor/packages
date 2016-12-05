@@ -46,5 +46,7 @@ dburles:mongo-collection-instances
 
 vsivsi:file-collection
 
+numtel:template-from-string
+
 # loredanacirstea:oroboro-controller
 loredanacirstea:svgjs
