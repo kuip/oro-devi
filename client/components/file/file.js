@@ -139,78 +139,18 @@ FileDisplay = React.createClass({
       )
 
     if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
-      /*require([
-        "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
-        "/api/file/_devicore/svg.min.js",
-        "/api/file/_devicore/raphael.min.js",
-        "/api/file/_devicore/nomnoml_ct/nomnoml.js"
-      ],function(_, SVG, Raphael, nomnoml) { 
-        require([
-          "/api/file/_devicore/sequence-diagrams.js",
-          "/api/file/_devicore/railroad-diagrams.js",
-          "/api/file/_devicore/marked.js"
-        ],function(Diagram,Railroad) {
-          window = Object.assign(window, Railroad)
-          //$("#markdown"+doc._id ).empty()
-          $('#canvas-panner').parents().css({width: '100%', height: '100%'})
-          var script = marked(doc.script)
-          $('#canvas-panner').html(script)
-        })
-      })*/
-
-
       return React.createElement('div',
         {id: 'canvas-panner', style: {height: '100%', width: '100%'}},
       )
     }
 
     if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
-      /*require([
-        "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
-        "/api/file/_devicore/nomnoml_ct/lib/svgpan.js",
-        "/api/file/_devicore/nomnoml_ct/nomnoml.js",
-      ],function() {
-        //$('#canvas-panner').empty()
-        $('#canvas-panner').parents().css({width: '100%', height: '100%'})
-        var canv = document.getElementById('canvas-panner')
-        var source = '#edges: hard\n' + doc.script
-        nomnoml.draw(canv, source);
-      })*/
-      //console.log('here uml')
       return React.createElement('div',
           {id: 'canvas-panner', style: {height: '100%', width: '100%'}}
         )
     }
 
     if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
-      /*require([
-        "/api/file/_devicore/nomnoml_ct/lib/lodash.min.js",
-        "/api/file/_devicore/nomnoml_ct/lib/svgpan.js",
-        "/api/file/_devicore/raphael.min.js",
-        "/api/file/_devicore/svg.min.2.0.0.js"
-      ],function(_, svgPan, Raphael, SVG) {
-        if(!svgPan)
-            if(typeof root !== 'undefined')
-              svgPan = root.svgPan
-          if(!svgPan)
-            svgPan = window.svgPan
-
-        require([
-          "/api/file/_devicore/sequence-diagram2.js"
-        ],function(Diagram) {
-          if(!Diagram)
-            if(typeof root !== 'undefined')
-              Diagram = root.Diagram
-          if(!Diagram)
-            Diagram = window.Diagram
-
-          $("#nomnomlseq"+doc._id).empty()
-          $("#nomnomlseq"+doc._id).parents().css({width: '100%', height: '100%'})
-          var source = Diagram.parse(doc.script)
-          source.drawSVG("nomnomlseq"+doc._id, {theme: 'simple'})
-        })
-      })*/
-
       return React.createElement(
         "div",
           { id: "nomnomlseq"+doc._id, style: {height: '100%', width: '100%'} }
