@@ -8,7 +8,8 @@ var routes = React.createElement(
   React.createElement(IndexRoute, { component: AppLoading }),
   React.createElement(Route, { path: "files(/**)", component: FilesComponent }),
   React.createElement(Route, { path: "file/**", component: FileComponent }),
-  React.createElement(Route, { path: "svg", component: SvgComponent })
+  React.createElement(Route, { path: "svg", component: SvgComponent }),
+  React.createElement(Route, { path: "app/**", component: AppComponent }),
 
   //React.createElement(Route, { path: "*", component: AppNotFound }),
 );
