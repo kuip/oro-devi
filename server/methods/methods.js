@@ -40,5 +40,8 @@ Meteor.methods({
   },
   removeFile: function(path) {
     fs.unlinkSync(ROOT + '/' + path.substring(7))
+  },
+  removeUpload: function(_id) {
+    OroUploads.remove({_id: new Mongo.ObjectID(_id)});
   }
 })

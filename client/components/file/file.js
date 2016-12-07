@@ -295,7 +295,7 @@ UploadFile = React.createClass({
   deleteFile: function(event) {
     event.preventDefault();
     var loadedFile = Session.get('loadedFile')
-    if(loadedFile)
+    if(loadedFile) {
       if(loadedFile.title.indexOf('meteor') != 0)
         this.props.files.remove([loadedFile._id])
       else
@@ -306,6 +306,9 @@ UploadFile = React.createClass({
           if(!err)
             Meteor.call('removeFile', loadedFile.title)
         })
+      if(loadedFile.upload)
+        Meteor.call('removeUpload', loadedFile.upload);
+    }
 
   },
 
