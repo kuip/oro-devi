@@ -27,9 +27,9 @@ FileComponent = React.createClass({
   },
 
   getMeteorData: function getMeteorData() {
-    //console.log('FileComponent getMeteorData')
+    console.log('FileComponent getMeteorData')
     //console.log(this.props.params)
-    let handle, 
+    let handle, handle2, doc, file, 
       title = this.props.params.splat,
       idx1 = title.lastIndexOf('/'),
       idx2 = title.indexOf('.tmpl'),
@@ -42,17 +42,28 @@ FileComponent = React.createClass({
     else {
       handle = Meteor.subscribe('file', {title: title})
     }
-    //this.file.subscribe()
-    //this.file.trackDoc()
-    if(handle.ready())
-      return {
-        //file: this.file,
-        //subsReady: this.file.subscriptionHandle.ready()
-        file: {doc: OroFile.findOne({title: title})},
-        files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
-        folder,
-        name
+
+    if(handle.ready()) {
+      doc = OroFile.findOne({title: title});
+      if(doc && doc.upload) {
+        handle2 = Meteor.subscribe('fileuploads', {_id: doc.upload});
+        file = OroUploads.findOne( new Mongo.ObjectID(doc.upload));
+        if(file)
+          window.location.href = '/gridfs/orouploads/' + file.md5;
+        else
+          doc = null;
       }
+      if(!handle2 || handle2.ready()) {
+        return {
+          file: { 
+            doc,
+          },
+          files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
+          folder,
+          name
+        }
+      }
+    }
 
     return {}
   },
