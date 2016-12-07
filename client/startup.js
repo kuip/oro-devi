@@ -1,11 +1,15 @@
+import 'meteor/loredanacirstea:appclass';
+import { getFolder } from '/client/lib/vars';
+
 // When a file is added
 OroUploads.resumable.on('fileAdded', (file) => {
    // Keep track of its progress reactivaly in a session variable
    Session.set(file.uniqueIdentifier, 0)
+   let filename = (getFolder.get() + file.fileName) || 'Unknown';
    // Create a new file in the file collection to upload to
    OroUploads.insert({
          _id: file.uniqueIdentifier,    // This is the ID resumable will use
-         filename: file.fileName,
+         filename,
          contentType: file.file.type
       },
       (err, _id) => {
@@ -17,6 +21,23 @@ OroUploads.resumable.on('fileAdded', (file) => {
          OroUploads.resumable.upload();
       }
    );
+   let extension = filename.substring(filename.lastIndexOf('.')+1);
+   let loadedFile = {
+      title: filename,
+      extension,
+      upload: file.uniqueIdentifier
+   };
+
+   let files = new FileDocs();
+   files.init();
+
+   files.insert(loadedFile, function(err, id) {
+     console.log(err);
+     console.log(id);
+     loadedFile._id = id;
+     Session.set('loadedFile', loadedFile);
+   })
+
 });
 
 // Update the upload progress session variable
@@ -35,7 +56,7 @@ OroUploads.resumable.on('fileError', (file) => {
 
 // Set up an autorun to keep the X-Auth-Token cookie up-to-date and
 // to update the subscription when the userId changes.
-Tracker.autorun(() => {
+/*Tracker.autorun(() => {
    userId = Meteor.userId();
    Meteor.subscribe('uploads', userId);
-});
+});*/

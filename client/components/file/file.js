@@ -1,6 +1,7 @@
 import React from 'react';
 import { Template } from 'meteor/templating';
 import { Blaze } from 'meteor/blaze';
+import { getFolder } from '/client/lib/vars';
 import 'meteor/numtel:template-from-string';
 
 Tracker.autorun(function() {
@@ -26,9 +27,9 @@ FileComponent = React.createClass({
   },
 
   getMeteorData: function getMeteorData() {
-    //console.log('FileComponent getMeteorData')
+    console.log('FileComponent getMeteorData')
     //console.log(this.props.params)
-    let handle, 
+    let handle, handle2, doc, file, 
       title = this.props.params.splat,
       idx1 = title.lastIndexOf('/'),
       idx2 = title.indexOf('.tmpl'),
@@ -41,17 +42,28 @@ FileComponent = React.createClass({
     else {
       handle = Meteor.subscribe('file', {title: title})
     }
-    //this.file.subscribe()
-    //this.file.trackDoc()
-    if(handle.ready())
-      return {
-        //file: this.file,
-        //subsReady: this.file.subscriptionHandle.ready()
-        file: {doc: OroFile.findOne({title: title})},
-        files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
-        folder,
-        name
+
+    if(handle.ready()) {
+      doc = OroFile.findOne({title: title});
+      if(doc && doc.upload) {
+        handle2 = Meteor.subscribe('fileuploads', {_id: doc.upload});
+        file = OroUploads.findOne( new Mongo.ObjectID(doc.upload));
+        if(file)
+          window.location.href = '/gridfs/orouploads/' + file.md5;
+        else
+          doc = null;
       }
+      if(!handle2 || handle2.ready()) {
+        return {
+          file: { 
+            doc,
+          },
+          files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
+          folder,
+          name
+        }
+      }
+    }
 
     return {}
   },
@@ -283,7 +295,7 @@ UploadFile = React.createClass({
   deleteFile: function(event) {
     event.preventDefault();
     var loadedFile = Session.get('loadedFile')
-    if(loadedFile)
+    if(loadedFile) {
       if(loadedFile.title.indexOf('meteor') != 0)
         this.props.files.remove([loadedFile._id])
       else
@@ -294,6 +306,9 @@ UploadFile = React.createClass({
           if(!err)
             Meteor.call('removeFile', loadedFile.title)
         })
+      if(loadedFile.upload)
+        Meteor.call('removeUpload', loadedFile.upload);
+    }
 
   },
 
@@ -596,6 +611,7 @@ ShowFiles2 = React.createClass({
     e.preventDefault()
     var val = e.target.value
     var state = this.state
+    getFolder.set(val.substring(1));
     state.regex[1] = val.substring(1).replace(/\//g, '\\/')
     this.props.files.query = {title: {$regex: state.regex.join(''), $options: 'gi'}}
     this.setState(state)
