@@ -18,6 +18,16 @@ Meteor.publish('files', function(query) {
   return OroFile.find(query)
 })
 
+Meteor.publish('fileuploads', function(query) {
+  query = query || {}
+  query['metadata._Resumable'] = { $exists: false };
+  if(query._id)
+    query._id = new Mongo.ObjectID(query._id);
+  console.log(query)
+  console.log(OroUploads.find(query).count())
+  return OroUploads.find(query)
+})
+
 // Only publish files owned by this userId, and ignore
 // file chunks being used by Resumable.js for current uploads
 Meteor.publish('uploads',
