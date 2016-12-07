@@ -1,6 +1,7 @@
 import React from 'react';
 import { Template } from 'meteor/templating';
 import { Blaze } from 'meteor/blaze';
+import { getFolder } from '/client/lib/vars';
 import 'meteor/numtel:template-from-string';
 
 Tracker.autorun(function() {
@@ -596,6 +597,7 @@ ShowFiles2 = React.createClass({
     e.preventDefault()
     var val = e.target.value
     var state = this.state
+    getFolder.set(val.substring(1));
     state.regex[1] = val.substring(1).replace(/\//g, '\\/')
     this.props.files.query = {title: {$regex: state.regex.join(''), $options: 'gi'}}
     this.setState(state)
