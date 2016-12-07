@@ -70,6 +70,8 @@ TemplateComponent = React.createClass({
     //let name = this.props.name;
     if(Template[this.indexTemplate])
       Blaze.renderWithData(Template[this.indexTemplate], {}, document.getElementById('Template_' + doc._id));
+    
+    $(document).trigger('pageload');
   },
 
   render: function render() {
