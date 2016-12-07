@@ -11,6 +11,29 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
     res.end()
     return
   }
+
+  // Let file collection handle this
+  if(post.upload) {
+    let upload = OroUploads.findOne(new Mongo.ObjectID(post.upload));
+    if(!upload) {
+      res.statusCode = 404;
+      res.statusMessage = "Not found";
+      res.end();
+      return;
+    }
+    res.writeHead(301, {Location: "/gridfs/orouploads/" + upload.md5});
+    res.end();
+    return;
+  }
+
+  res.statusCode = 200;
+
+  if(!post.script) {
+    res.end();
+    return;
+  }
+
+  
   
   res.setHeader('Content-Type', FileClass.mime(post.extension));
 
