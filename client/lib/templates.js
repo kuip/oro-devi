@@ -44,10 +44,17 @@ Template.Markdown.onRendered(function() {
 
 	    // Fix svg height
 	    Meteor.setTimeout(function() {
-		    $('.fit svg, #canvas-panner svg').each((i, elem) => {
+		    $('.fit svg').each((i, elem) => {
 		    	let width = $(elem).find('g rect').attr('width'),
 		    		height = $(elem).find('g rect').attr('height');
 		    	$(elem).parent().css({width: width+'px', height: height+'px'});
+		    });
+		    $('#canvas-panner svg').each((i, elem) => {
+		    	let width = $(elem).find('g rect').attr('width'),
+		    		height = $(elem).find('g rect').attr('height');
+		    	$(elem)
+		    		.attr('width', width+'px')
+		    		.attr('height', height+'px');
 		    });
 		  }, 1000);
 	  }
