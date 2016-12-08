@@ -107,6 +107,15 @@ FileDisplay = React.createClass({
       $('head').append('<script type="application/javascript" src="/api/file/_devicore/sequence-diagram2.js"></script>');
       $('head').append('<link rel="stylesheet" type="text/css" href="/api/file/railroad-diagrams.css">')
     }
+    if(['kmodel'].indexOf(doc.extension) >= 0 && doc.script) {
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.2.3.5.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.panzoom.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.draggable.min.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/dagre.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/keras_conf.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/keras_def.js"></script>');
+      $('head').append('<script type="application/javascript" src="/api/file/_devicore/keras.js"></script>');
+    }
 
     // We are in an *index* template file
     if(doc.extension == 'tmpl' && doc.title.indexOf('index') >= 0 && doc.script) {
@@ -182,6 +191,10 @@ FileDisplay = React.createClass({
       if(Template[name])
         Blaze.renderWithData(Template[name], {}, document.getElementById('Template_' + doc._id));
     }
+
+    if(['kmodel'].indexOf(doc.extension) !== -1 && doc.script) {
+      drawModel("canvas-panner", JSON.parse(doc.script));
+    }
   },
 
   componentDidUpdate(nprops, nstate) {
@@ -205,16 +218,10 @@ FileDisplay = React.createClass({
         {src: doc.script}
       )
 
-    if(['md'].indexOf(doc.extension) !== -1 && doc.script) {
+    if(['md', 'uml', 'kmodel'].indexOf(doc.extension) !== -1 && doc.script) {
       return React.createElement('div',
         {id: 'canvas-panner', style: {height: '100%', width: '100%'}},
       )
-    }
-
-    if(['uml'].indexOf(doc.extension) !== -1 && doc.script) {
-      return React.createElement('div',
-          {id: 'canvas-panner', style: {height: '100%', width: '100%'}}
-        )
     }
 
     if(['seq'].indexOf(doc.extension) !== -1 && doc.script) {
