@@ -2,6 +2,7 @@ import React from 'react';
 import { Template } from 'meteor/templating';
 import { Blaze } from 'meteor/blaze';
 import { getFolder } from '/client/lib/vars';
+import { pathParams } from '/client/lib/utils';
 import 'meteor/numtel:template-from-string';
 
 Tracker.autorun(function() {
@@ -261,17 +262,28 @@ FilesComponent = React.createClass({
 
   getMeteorData: function getMeteorData() {
     //   ^[^\/]*[^\/]*\.\w+
+    let title = this.props.params.splat,
+      files;
+    this.title = title;
 
-    this.regex = ['^','','([\\w-])+(\\.)(\\w+)']
+    if(title) {
+      let params = pathParams(title);
+      let { folder, name } = params;
+      console.log(folder, name);
+      this.regex = ['^', folder];
+    }
+    else {
+      this.regex = ['^','','([\\w-])+(\\.)(\\w+)'];
+    }
 
-    var files = new FileDocs({
+    files = new FileDocs({
       query: {title: {$regex: this.regex.join(''), $options: 'gi'}}, 
       options: {sort: [['title', 'asc']]}
-    })
-    files.init()
+    });
+    files.init();
 
     return {
-      files: files
+      files
     };
 
   },
@@ -282,7 +294,11 @@ FilesComponent = React.createClass({
       { className: "FileComponent" },
       React.createElement('div',
         {id: 'workdesk', style: {height: Session.get('window').h - 50}},//also change up
-        React.createElement(ShowFiles2, {files: this.data.files, regex: this.regex}),
+        React.createElement(ShowFiles2, {
+          files: this.data.files, 
+          regex: this.regex,
+          title: this.title,
+        }),
         React.createElement('div',
           {id: 'workdesk2'},
           React.createElement(UploadFile, {files: this.data.files, filequery: this.props.params.splat}),
@@ -585,7 +601,14 @@ ShowFiles2 = React.createClass({
   mixins: [ReactMeteorData], 
 
   getMeteorData: function getMeteorData() {
-    const subsReady = this.props.files.subscriptionHandle.ready()
+    const subsReady = this.props.files.subscriptionHandle.ready();
+
+    if(this.props.title && subsReady) {
+      var file = this.props.files.find({title: this.props.title})[0];
+      if(file)
+        Session.set('loadedFile', file);
+      this.props.title = null;
+    }
 
     return {
       subsReady: subsReady,
