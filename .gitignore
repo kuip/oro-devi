@@ -1,4 +1,4 @@
-server/basicauth.js
+server/auth.js
 server/config.js
 public/images/
 node_modules/
