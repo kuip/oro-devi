@@ -18,6 +18,10 @@ Meteor.publish('files', function(query) {
   return OroFile.find(query)
 })
 
+Meteor.publish('routes', function() {
+  return OroFile.find({title: {$regex: /devicore\/routes/ }});
+});
+
 Meteor.publish('fileuploads', function(query) {
   query = query || {}
   query['metadata._Resumable'] = { $exists: false };
