@@ -43,5 +43,13 @@ Meteor.methods({
   },
   removeUpload: function(_id) {
     OroUploads.remove({_id: new Mongo.ObjectID(_id)});
+  },
+  getRoutes: function() {
+    let routes = {},
+      file = OroFile.findOne({title: {$regex: /devicore\/routes/ }});
+    if(file) {
+      routes = JSON.parse(file.script || '{}');
+    }
+    return routes;
   }
 })
