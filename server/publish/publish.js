@@ -19,6 +19,7 @@ Meteor.publish('files', function(query) {
 })
 
 Meteor.publish('routes', function() {
+  console.log('routes: ' + OroFile.find({title: {$regex: /devicore\/routes/ }}).count())
   return OroFile.find({title: {$regex: /devicore\/routes/ }});
 });
 
