@@ -1,0 +1,29 @@
+<template name="OPagination">
+  {{> Template.dynamic template=template data=data }}
+  {{> paginationControls data}}
+</template>
+
+<template name="paginationControls">
+  <!--Page: {{pageNo}}
+  Total: {{pageTotal}}
+  Page Range: {{pageRange}}-->
+  {{#if prev}}
+    <button class="prev">-</button>
+  {{/if}}
+  <div class="pageNos">
+    {{#each rangeMin}}
+      {{> paginationNumber no=this}}
+    {{/each}}
+    {{> paginationNumber no=pageNo}}
+    {{#each rangeMax}}
+      {{> paginationNumber no=this}}
+    {{/each}}
+  </div>
+  {{#if next}}
+    <button class="next">+</button>
+  {{/if}}
+</template>
+
+<template name="paginationNumber">
+  <button class="pageNo">{{no}}</button>
+</template>

@@ -3,10 +3,9 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
+import { customRouter, customRoutes } from '/client/lib/vars';
 
-let router, routes,
-  customRoutes = new ReactiveVar(),
-  customRouter = new ReactiveVar();
+let router, routes;
 
 routes = React.createElement(
   Route,
@@ -20,7 +19,7 @@ routes = React.createElement(
 
 router = React.createElement(
   Router,
-  { 
+  {
     history: browserHistory,
     onUpdate: function() {
       customRouter.set(this);
@@ -57,3 +56,10 @@ Meteor.startup(function () {
     }
   })
 });
+
+export {
+  router,
+  routes,
+  customRouter,
+  customRoutes,
+}
