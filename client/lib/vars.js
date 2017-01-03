@@ -1,9 +1,13 @@
 import { ReactiveVar } from 'meteor/reactive-var';
 
-let getPage = new ReactiveVar();
-let getFolder = new ReactiveVar('');
+let getPage = new ReactiveVar(),
+	getFolder = new ReactiveVar(''),
+	customRoutes = new ReactiveVar(),
+	customRouter = new ReactiveVar();
 
-export { 
+export {
 	getPage,
 	getFolder,
+	customRoutes,
+	customRouter,
 }
