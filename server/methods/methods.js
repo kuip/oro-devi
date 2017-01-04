@@ -51,5 +51,8 @@ Meteor.methods({
       routes = JSON.parse(file.script || '{}');
     }
     return routes;
+  },
+  countFiles: function(query) {
+    return OroFile.find(query).count();
   }
 })
