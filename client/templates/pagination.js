@@ -4,8 +4,14 @@ import { customRouter, customRoutes } from '/client/lib/vars';
 Template.OPagination.helpers({
   template: () => {
     let d = Template.instance().data || {},
-      r = customRouter.get();
-    return d.page + (r.router.location.query.page || 1);
+      r = customRouter.get(),
+      t = d.template + (r.router.location.query.page || 1);
+
+    // Return <templateNameX>, where X = page number if template exists
+    if(Template[t])
+      return t;
+    // Return templateName
+    return d.template;
   },
 
   data: () => {
