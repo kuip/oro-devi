@@ -49,11 +49,20 @@ Template.paginationControls.helpers({
 
   rangeMin:() => {
     let d = Template.instance().data;
-    return [1,2,3];
+    let arr = [];
+    for(let i=Math.max(1, d.pageNo-pageRange); i < d.pageNo; i++) {
+      arr.push(i);
+    }
+    return arr;
   },
 
   rangeMax:() => {
-    return [5,6,7];
+    let d = Template.instance().data;
+    let arr = [];
+    for(let i=d.pageNo+1; i <= Math.min(d.pageNo+pageRange, d.pageTotal); i++) {
+      arr.push(i);
+    }
+    return arr;
   }
 });
 
