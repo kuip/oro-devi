@@ -1,5 +1,5 @@
 import { getPage } from '/client/lib/vars';
-import { customRouter, customRoutes } from '/client/lib/vars';
+import { customRouter } from '/client/lib/vars';
 
 Template.OPagination.helpers({
   template: () => {
@@ -15,18 +15,17 @@ Template.OPagination.helpers({
   },
 
   data: () => {
-    let { pageTotal } = Template.instance().data || {},
-      r = customRouter.get(),
+    let d = Object.assign({}, Template.instance().data || {});
+    let r = customRouter.get(),
       pageNo = 1;
 
     if(r.router.location.query.page) {
       pageNo = parseInt(r.router.location.query.page);
     }
 
-    return {
-      pageNo,
-      pageTotal,
-    }
+    d.pageNo = pageNo;
+
+    return d;
   }
 });
 
