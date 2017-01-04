@@ -1,0 +1,18 @@
+<template name="OBrowser">
+  {{> OPagination
+    template="OBrowserGrid"
+    pageTotal=pageNo
+    gridTemplate=template
+    docs=docs
+    rows=rows
+    cols=cols
+  }}
+</template>
+
+<template name="OBrowserGrid">
+  {{#each rows}}
+    {{#each cols}}
+      {{>Template.dynamic template=template data=data}}
+    {{/each}}
+  {{/each}}
+</template>
