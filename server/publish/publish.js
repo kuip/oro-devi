@@ -7,15 +7,15 @@ Meteor.publish('file', function(id) {
   return OroFile.find(query)
 })
 
-Meteor.publish('files', function(query) {
+Meteor.publish('files', function(query, options) {
   /*console.log(query)
   for(k in query)
     if(query[k]['$regex'])
       query[k]['$regex'] = new RegExp(query[k]['$regex'])*/
 
-  console.log(query)
-  console.log(OroFile.find(query).count())
-  return OroFile.find(query)
+  if(!query)
+    return null;
+  return OroFile.find(query, options || {});
 })
 
 Meteor.publish('routes', function() {
