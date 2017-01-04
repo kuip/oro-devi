@@ -14,3 +14,17 @@ Template.registerHelper('stringify', function(a) {
 Template.registerHelper('getPage', () => {
 	return getPage.get();
 });
+
+Template.registerHelper('redirect', function(link, selector) {
+	if(!link || !selector) {
+		return;
+	}
+	let r = customRouter.get(),
+		inst = Template.instance(),
+		evMap = {};
+
+	evMap['click '+selector] = function(ev) {
+		r.props.history.push(link);
+	}
+	inst.view.template.__eventMaps.push(evMap);
+});
