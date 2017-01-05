@@ -1,5 +1,3 @@
-import { loadScript } from './loadScript.js';
-
 Template.Kmodel.onRendered(function() {
   console.log('Kmodel rendered!!')
   $('head').append('<script type="application/javascript" src="/api/file/_devicore/svg.2.3.5.js"></script>');
