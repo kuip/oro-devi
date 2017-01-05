@@ -10,14 +10,13 @@ import '/client/lib/helpers.js';
 
 TemplateComponent = React.createClass({
 
-	setPage() {
-		getPage.set(this.props.name);
+	setPage(name) {
+		getPage.set(name || this.props.name);
 	},
 
-  componentWillMount() {
-  	console.log('TemplateComponent componentWillMount')
-  	// getPage global helper
-  	this.setPage();
+	loadTemplates() {
+		// getPage global helper
+		this.setPage();
 
     let doc = this.props.file.doc;
 
@@ -59,6 +58,14 @@ TemplateComponent = React.createClass({
 
       $('head').html(heads);
     }
+	},
+
+	componentWillUpdate(newprops) {
+		this.setPage(newprops.name);
+	},
+
+	componentWillMount() {
+  	this.loadTemplates();
   },
 
   componentDidMount() {
