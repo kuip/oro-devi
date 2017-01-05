@@ -20,7 +20,7 @@ Template.OBrowser.onCreated(function() {
   this.autorun(() => {
     let { folder, rows, cols } = Template.currentData() || {},
       page = this.page.get();
-    console.log(page, Template.currentData())
+
     if(rows) {
       this.rows = rows;
     }
@@ -77,7 +77,6 @@ Template.OBrowserGrid.onCreated(function() {
   this.autorun(() => {
     let d = Template.currentData() || {};
     this.d.set(d);
-    console.log(JSON.stringify(d));
   });
 });
 
@@ -112,5 +111,10 @@ Template.OBrowserGrid.helpers({
     return {
       json: docs[(irow-1) * cols + icol - 1]
     }
+  },
+
+  width: () => {
+    let { cols } = Template.instance().d.get();
+    return (100 - 4) / (cols || 1);
   }
 });

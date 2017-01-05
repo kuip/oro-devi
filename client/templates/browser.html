@@ -12,7 +12,9 @@
 <template name="OBrowserGrid">
   {{#each rows}}
     {{#each cols}}
-      {{>Template.dynamic template=template data=data}}
+      <div class="OBrowserGrid" style="width:{{width}}%;float:left;margin-left:1%;margin-right:1%;">
+        {{>Template.dynamic template=template data=data}}
+      </div>
     {{/each}}
   {{/each}}
 </template>
