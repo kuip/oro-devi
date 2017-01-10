@@ -30,7 +30,7 @@ FileComponent = React.createClass({
   getMeteorData: function getMeteorData() {
     console.log('FileComponent getMeteorData')
     //console.log(this.props.params)
-    let handle, handle2, doc, file, 
+    let handle, handle2, doc, file,
       title = this.props.params.splat,
       idx1 = title.lastIndexOf('/'),
       idx2 = title.indexOf('.tmpl'),
@@ -56,7 +56,7 @@ FileComponent = React.createClass({
       }
       if(!handle2 || handle2.ready()) {
         return {
-          file: { 
+          file: {
             doc,
           },
           files: OroFile.find({title: {$regex: folder, $options: 'i'}}).fetch(),
@@ -125,7 +125,7 @@ FileDisplay = React.createClass({
         title, script;
 
       // Load all Blaze templates that are dependencies (same folder as this index file)
-      // If the template contains a <head></head>, 
+      // If the template contains a <head></head>,
       // we clear the default head tag and put the new content in it
       files.forEach((f) => {
         script = f.script;
@@ -199,15 +199,15 @@ FileDisplay = React.createClass({
   },
 
   componentDidUpdate(nprops, nstate) {
-    
+
   },
 
   componentWillUnmount() {
     //console.log('componentWillUnmount')
   },
 
-  createMarkup : function createMarkup(script) { 
-    return {__html: script}; 
+  createMarkup : function createMarkup(script) {
+    return {__html: script};
   },
 
   render: function render() {
@@ -295,7 +295,7 @@ FilesComponent = React.createClass({
       React.createElement('div',
         {id: 'workdesk', style: {height: Session.get('window').h - 50}},//also change up
         React.createElement(ShowFiles2, {
-          files: this.data.files, 
+          files: this.data.files,
           regex: this.regex,
           title: this.title,
         }),
@@ -467,7 +467,7 @@ UploadFile = React.createClass({
             { type: "button", className: "btn-primary", onClick: this.toggleUpload},
             "Upload"
           ),
-          this.state.file && this.state.file.extension == 'json' ? 
+          this.state.file && this.state.file.extension == 'json' ?
             React.createElement(
               "button",
               { type: "button", className: "btn-primary", onClick: this.loadNeural},
@@ -505,7 +505,7 @@ OroUpload = React.createClass({
   render: function () {
     OroUploads.resumable.assignDrop($('.fileDrop'));
     return React.createElement("div",
-        { id: "fileDrop", 
+        { id: "fileDrop",
           onDragEnter: this.onDragEnter,
           onMouseOut: this.onMouseOut,
           className: "fileDrop " + this.state.background
@@ -576,9 +576,9 @@ ShowFiles = React.createClass({
     return React.createElement('div', {id: 'showFiles'},
       React.createElement('input', {name: 'filter', id: 'filter', onChange: this.onChange}),
       React.createElement('br'),
-       this.data.subsReady ? 
+       this.data.subsReady ?
         this.data.data.map(function(f) {
-          return React.createElement('a', 
+          return React.createElement('a',
             {href: '#', id:f._id, name:f._id, key: f._id, onClick: self.loadScript},
             f.title,
             React.createElement('br')
@@ -598,7 +598,7 @@ ShowFiles2 = React.createClass({
     }
   },
 
-  mixins: [ReactMeteorData], 
+  mixins: [ReactMeteorData],
 
   getMeteorData: function getMeteorData() {
     const subsReady = this.props.files.subscriptionHandle.ready();
@@ -666,9 +666,9 @@ ShowFiles2 = React.createClass({
         React.createElement('br'),
         React.createElement('input', {name: 'filter', id: 'filter', onChange: this.onChange})
       ),
-       this.data.subsReady ? 
+       this.data.subsReady ?
         this.data.data.map(function(f) {
-          return React.createElement('a', 
+          return React.createElement('a',
             {href: '#', id:f._id, name:f._id, key: f._id, onClick: self.loadScript},
             f.title,
             React.createElement('br')
@@ -709,7 +709,7 @@ SelectFolder = React.createClass({
 
   render: function render() {
     //console.log('value: ' + this.state.value)
-    
+
     return React.createElement('select', {id: 'showFilesSelect', ref: 'selectFolder', onChange: this.props.onChange, value: this.state.value},
           _.sortBy(this.state.options).map(function(o) {
             return React.createElement("option",
@@ -724,7 +724,7 @@ SelectFolder = React.createClass({
 FileIFrame = React.createClass({
   render: function render() {
     var self = this
-    
+
     return React.createElement('div', {id: 'fileIFrame'},
       React.createElement('iframe', {src: this.props.src})
     )
@@ -744,7 +744,7 @@ IFrameWrapper = React.createClass({
 
     if(['html', 'svg', 'uml', 'seq', 'md', 'json'].indexOf(f.extension) != -1)
       Session.set('lastLoaded', f)
-    
+
     if(['md', 'uml', 'seq', 'jpg', 'png', 'jpeg'].indexOf(f.extension) != -1)
       base = '/file/'
     else if(['js', 'css'].indexOf(f.extension) != -1) {
@@ -774,7 +774,7 @@ IFrameWrapper = React.createClass({
       return React.createElement(FileIFrame, {src: this.data.src})
   }
 })
- 
+
 LoadAce = React.createClass({
   getInitialState() {
     return {
