@@ -1,7 +1,7 @@
 import React from 'react';
 import { Template } from 'meteor/templating';
 import { Blaze } from 'meteor/blaze';
-import { getFolder } from '/client/lib/vars';
+import { getFolder, customRouter } from '/client/lib/vars';
 import { pathParams } from '/client/lib/utils';
 import 'meteor/numtel:template-from-string';
 
@@ -270,14 +270,14 @@ FilesComponent = React.createClass({
       let params = pathParams(title);
       let { folder, name } = params;
       console.log(folder, name);
-      this.regex = ['^', folder];
+      this.regex = ['^', folder+'/', '([\\w-])+(\\.)(\\w+)'];
     }
     else {
       this.regex = ['^','','([\\w-])+(\\.)(\\w+)'];
     }
 
     files = new FileDocs({
-      query: {title: {$regex: this.regex.join(''), $options: 'gi'}}, 
+      query:{title: {$regex: this.regex.join(''), $options: 'gi'}},
       options: {sort: [['title', 'asc']]}
     });
     files.init();
@@ -635,16 +635,22 @@ ShowFiles2 = React.createClass({
     var id = $(e.target).attr('id')
     var file = this.props.files.find({_id: id})[0]
     Session.set('loadedFile', file)
+    let r = customRouter.get();
+    r.props.history.push('/files/'+file.title);
   },
 
   folderOnChange: function(e) {
     e.preventDefault()
-    var val = e.target.value
-    var state = this.state
-    getFolder.set(val.substring(1));
-    state.regex[1] = val.substring(1).replace(/\//g, '\\/')
+    let val = e.target.value,
+      state = this.state,
+      folder = val.substring(1);
+
+    getFolder.set(folder);
+    state.regex[1] = folder.replace(/\//g, '\\/')
     this.props.files.query = {title: {$regex: state.regex.join(''), $options: 'gi'}}
     this.setState(state)
+    let r = customRouter.get();
+    r.props.history.push('/files/'+folder.substring(0, folder.length-1));
   },
 
   parseRoot: function(root) {
