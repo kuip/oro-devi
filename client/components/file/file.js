@@ -439,7 +439,7 @@ UploadFile = React.createClass({
           ),
           React.createElement("select",
             {name: 'select', id: 'selectExt'},
-            options.map(function(o) {
+            _.sortBy(options).map(function(o) {
               return React.createElement("option",
                 {key: o, value: o, name: "option"},
                 o
@@ -705,7 +705,7 @@ SelectFolder = React.createClass({
     //console.log('value: ' + this.state.value)
     
     return React.createElement('select', {id: 'showFilesSelect', ref: 'selectFolder', onChange: this.props.onChange, value: this.state.value},
-          this.state.options.map(function(o) {
+          _.sortBy(this.state.options).map(function(o) {
             return React.createElement("option",
               {key: o, value: o, name: "option"},
               o
