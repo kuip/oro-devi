@@ -8,6 +8,7 @@ Template.OBrowser.onCreated(function() {
   this.skip = new ReactiveVar(0);
   this.limit = new ReactiveVar(0);
   this.page = new ReactiveVar(1);
+  this.pageNo = new ReactiveVar(1);
 
   this.autorun(() => {
     r = customRouter.get();
@@ -27,6 +28,7 @@ Template.OBrowser.onCreated(function() {
     if(cols) {
       this.cols = cols;
     }
+
     if(folder) {
       this.query = {title: {$regex: folder, $options: 'i'}};
 
@@ -46,6 +48,7 @@ Template.OBrowser.onCreated(function() {
           });
           self.skip.set(skip);
           self.limit.set(limit);
+          self.pageNo.set(Math.ceil(res / rows / cols));
         }
       });
     }
@@ -59,17 +62,14 @@ Template.OBrowser.helpers({
   },
 
   pageNo: () => {
-    let q = Template.instance().query;
-    if(q)
-      return OroFile.find(q).count();
+    return Template.instance().pageNo.get();
   },
 
   docs: () => {
     let { query, skip, limit } = Template.instance();
     console.log('skip...', skip.get(), limit.get());
-    console.log(OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateModified: -1}}).map(doc => {return doc.title}));
     if(query)
-      return OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateCreated: -1}}).fetch();
+      return OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateCreated: 1}}).fetch();
     return [];
   }
 });
