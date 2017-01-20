@@ -36,9 +36,10 @@ Template.OBrowser.onCreated(function() {
         }
         if(res) {
           let skip = page > 0 ? ((page-1) * rows * cols) : 0,
-            limit = Math.min(page * rows * cols, res);
+            //limit = Math.min(page * rows * cols, res);
+            limit = rows * cols;
 
-          console.log('res, skip, limit:', res, skip, limit);
+          console.log('page, res, skip, limit:', page, res, skip, limit);
           self.subscribe('files', self.query, {
             skip,
             limit
@@ -65,8 +66,10 @@ Template.OBrowser.helpers({
 
   docs: () => {
     let { query, skip, limit } = Template.instance();
+    console.log('skip...', skip.get(), limit.get());
+    console.log(OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateModified: -1}}).map(doc => {return doc.title}));
     if(query)
-      return OroFile.find(query, {skip: skip.get(), limit: limit.get()}).fetch();
+      return OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateCreated: -1}}).fetch();
     return [];
   }
 });

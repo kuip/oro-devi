@@ -59,7 +59,12 @@ Template.paginationControls.helpers({
   rangeMax:() => {
     let d = Template.instance().data;
     let arr = [];
-    for(let i=d.pageNo+1; i <= Math.min(d.pageNo+pageRange, d.pageTotal); i++) {
+    console.log(d)
+    console.log('rangeMax',d.pageTotal, Math.ceil(d.pageTotal/d.rows/d.cols), d.pageNo+pageRange);
+    for(
+      let i=d.pageNo+1;
+      i <= Math.min(d.pageNo+pageRange, Math.ceil(d.pageTotal/d.rows/d.cols));
+      i++) {
       arr.push(i);
     }
     return arr;

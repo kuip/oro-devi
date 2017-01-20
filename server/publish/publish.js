@@ -7,7 +7,7 @@ Meteor.publish('file', function(id) {
   return OroFile.find(query)
 })
 
-Meteor.publish('files', function(query, options) {
+Meteor.publish('files', function(query, options = {}) {
   /*console.log(query)
   for(k in query)
     if(query[k]['$regex'])
@@ -15,7 +15,8 @@ Meteor.publish('files', function(query, options) {
 
   if(!query)
     return null;
-  return OroFile.find(query, options || {});
+  options.dateModified = -1;
+  return OroFile.find(query, options);
 })
 
 Meteor.publish('routes', function() {
