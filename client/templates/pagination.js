@@ -92,3 +92,10 @@ Template.paginationControls.events({
       }
     },
 });
+
+Template.paginationNumber.helpers({
+  disabled: () => {
+    let { active } = Template.currentData();
+    return active ? 'disabled' : '';
+  }
+});

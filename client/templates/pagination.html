@@ -5,7 +5,7 @@
 </template>
 
 <template name="paginationControls">
-  <div class="pageNos">
+  <div class="pageNos" style="margin-left:1%;">
     {{#if prev}}
       <button class="prev">-</button>
     {{/if}}
@@ -13,7 +13,7 @@
     {{#each rangeMin}}
       {{> paginationNumber no=this}}
     {{/each}}
-    {{> paginationNumber no=pageNo}}
+    {{> paginationNumber no=pageNo active=1}}
     {{#each rangeMax}}
       {{> paginationNumber no=this}}
     {{/each}}
@@ -25,5 +25,5 @@
 </template>
 
 <template name="paginationNumber">
-  <button class="pageNo">{{no}}</button>
+  <button type="button" {{disabled}} class="pageNo">{{no}}</button>
 </template>
