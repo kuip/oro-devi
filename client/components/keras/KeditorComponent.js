@@ -16,33 +16,31 @@ KeditorTemplate = React.createClass({
   },
 
   componentDidMount() {
-    let { file, json } = this.props;
-    let script = file ? file.script : json;
+    let { file, json } = this.props,
+      script = file ? file.script : json,
+      self = this;
     if(!script)
       return;
 
     drawModel("KeditorTemplate", JSON.parse(script));
     layer_ndx = "model";
     update_layer(layer_ndx);
+
+    save_btn.click(function(){
+      self.save_src(JSON.stringify(source1)); //!! global variable from keras.js script
+    })
   },
 
-  save_src() {
-    console.log('herere')
-    let { _id } = this.props.file || {},
-      source = $("#json_source_textarea").val();
-      console.log(_id, source)
-    if(!_id || !source)
+  save_src(src) {
+    let { _id } = this.props.file || {};
+
+    if(!_id || !src)
       return;
-    console.log(save_src)
-    save_src(); //from keraseditor.js script in db
-    OroFile.update({ _id }, {$set: {script: source}}, function(err, no) {
+
+    OroFile.update({ _id }, {$set: {script: src}}, function(err, no) {
       console.log(err)
       console.log(no)
     });
-  },
-
-  hide_dialog() {
-    hide_dialog();
   },
 
   render() {
@@ -64,7 +62,7 @@ KeditorTemplate = React.createClass({
             { id: "tool_source_back", className: "toolbar_button"},
             React.createElement(
               "button",
-              { id: "tool_source_save", onClick: this.save_src},
+              { id: "tool_source_save", onClick: save_src},
               React.createElement(
                 "svg",
                 { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16"},
@@ -77,7 +75,7 @@ KeditorTemplate = React.createClass({
             ),
             React.createElement(
               "button",
-              { id: "tool_source_cancel", onClick: this.hide_dialog },
+              { id: "tool_source_cancel", onClick: hide_dialog },
               React.createElement(
                 "svg",
                 { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", width: "16", height: "16"},
