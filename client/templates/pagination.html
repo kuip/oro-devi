@@ -1,6 +1,8 @@
 <template name="OPagination">
   {{> paginationControls data}}
-  {{> Template.dynamic template=template data=data }}
+  <div>
+    {{> Template.dynamic template=template data=data }}
+  </div>
   {{> paginationControls data}}
 </template>
 
@@ -25,5 +27,5 @@
 </template>
 
 <template name="paginationNumber">
-  <button type="button" {{disabled}} class="pageNo">{{no}}</button>
+  <button type="button" {{disabled}} class="pageNo" data-page={{no}}>{{no}}</button>
 </template>

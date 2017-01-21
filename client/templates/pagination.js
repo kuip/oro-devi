@@ -50,6 +50,7 @@ Template.paginationControls.helpers({
   rangeMin:() => {
     let d = Template.instance().data;
     let arr = [];
+    //console.log('rangeMin',d.pageNo-pageRange, Math.max(1, d.pageNo-pageRange), d.pageNo);
     for(let i=Math.max(1, d.pageNo-pageRange); i < d.pageNo; i++) {
       arr.push(i);
     }
@@ -59,8 +60,8 @@ Template.paginationControls.helpers({
   rangeMax:() => {
     let d = Template.instance().data;
     let arr = [];
-    console.log(d)
-    console.log('rangeMax',d.pageTotal, Math.ceil(d.pageTotal/d.rows/d.cols), d.pageNo+pageRange);
+    //console.log(d)
+    //console.log('rangeMax',d.pageTotal, d.pageNo+pageRange);
     for(
       let i=d.pageNo+1;
       i <= Math.min(d.pageNo+pageRange, d.pageTotal);
@@ -91,6 +92,15 @@ Template.paginationControls.events({
         r.props.history.push(redir);
       }
     },
+    'click .pageNo': (ev, inst) => {
+      let r = customRouter.get();
+
+      if(r) {
+        let no = parseInt($(ev.currentTarget).data('page'));
+        let redir = r.router.location.pathname + "?page=" + no;
+        r.props.history.push(redir);
+      }
+    }
 });
 
 Template.paginationNumber.helpers({
