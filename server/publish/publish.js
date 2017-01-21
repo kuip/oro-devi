@@ -16,8 +16,6 @@ Meteor.publish('files', function(query, options = {}) {
   if(!query)
     return null;
 
-  options.sort = options.sort || {};
-  options.sort.dateCreated = 1;
   return OroFile.find(query, options);
 })
 
