@@ -1,26 +1,31 @@
 <template name="OPagination">
-  {{> Template.dynamic template=template data=data }}
+  {{> paginationControls data}}
+  <div>
+    {{> Template.dynamic template=template data=data }}
+  </div>
   {{> paginationControls data}}
 </template>
 
 <template name="paginationControls">
-  {{#if prev}}
-    <button class="prev">-</button>
-  {{/if}}
-  <div class="pageNos">
+  <div class="pageNos" style="margin-left:1%;">
+    {{#if prev}}
+      <button class="prev">-</button>
+    {{/if}}
+
     {{#each rangeMin}}
       {{> paginationNumber no=this}}
     {{/each}}
-    {{> paginationNumber no=pageNo}}
+    {{> paginationNumber no=pageNo active=1}}
     {{#each rangeMax}}
       {{> paginationNumber no=this}}
     {{/each}}
+
+    {{#if next}}
+      <button class="next">+</button>
+    {{/if}}
   </div>
-  {{#if next}}
-    <button class="next">+</button>
-  {{/if}}
 </template>
 
 <template name="paginationNumber">
-  <button class="pageNo">{{no}}</button>
+  <button type="button" {{disabled}} class="pageNo" data-page={{no}}>{{no}}</button>
 </template>

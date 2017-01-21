@@ -8,12 +8,13 @@ Template.OBrowser.onCreated(function() {
   this.skip = new ReactiveVar(0);
   this.limit = new ReactiveVar(0);
   this.page = new ReactiveVar(1);
+  this.pageNo = new ReactiveVar(1);
 
   this.autorun(() => {
     r = customRouter.get();
     if(r) {
       this.page.set(parseInt(r.router.location.query.page || 1));
-      console.log("OBrowser page", this.page.get());
+      //console.log("OBrowser page", this.page.get());
     }
   });
 
@@ -27,6 +28,7 @@ Template.OBrowser.onCreated(function() {
     if(cols) {
       this.cols = cols;
     }
+
     if(folder) {
       this.query = {title: {$regex: folder, $options: 'i'}};
 
@@ -36,15 +38,20 @@ Template.OBrowser.onCreated(function() {
         }
         if(res) {
           let skip = page > 0 ? ((page-1) * rows * cols) : 0,
-            limit = Math.min(page * rows * cols, res);
+            //limit = Math.min(page * rows * cols, res);
+            limit = rows * cols;
 
-          console.log('res, skip, limit:', res, skip, limit);
-          self.subscribe('files', self.query, {
+          //console.log('page, res, skip, limit:', page, res, skip, limit);
+          if(self.handle)
+            self.handle.stop();
+          self.handle = self.subscribe('files', self.query, {
             skip,
-            limit
+            limit,
+            sort: {"dateCreated": 1 }
           });
           self.skip.set(skip);
           self.limit.set(limit);
+          self.pageNo.set(Math.ceil(res / rows / cols));
         }
       });
     }
@@ -58,15 +65,17 @@ Template.OBrowser.helpers({
   },
 
   pageNo: () => {
-    let q = Template.instance().query;
-    if(q)
-      return OroFile.find(q).count();
+    return Template.instance().pageNo.get();
   },
 
   docs: () => {
     let { query, skip, limit } = Template.instance();
-    if(query)
-      return OroFile.find(query, {skip: skip.get(), limit: limit.get()}).fetch();
+    //console.log('skip...', skip.get(), limit.get(), JSON.stringify(query));
+    //console.log(OroFile.find(query).fetch().length);
+    if(query) {
+      return OroFile.find(query, {limit: limit.get(), sort: {dateCreated: 1}}).fetch()
+      //return OroFile.find(query, {skip: skip.get(), limit: limit.get(), sort: {dateCreated: 1}}).fetch();
+    }
     return [];
   }
 });
@@ -90,7 +99,7 @@ Template.OBrowserGrid.helpers({
     return arr;
   },
 
-  cols: () => {
+  cols: function(a, b) {
     let { cols } = Template.instance().d.get(),
       arr = [];
     for(let i=1; i <= cols; i++) {
@@ -106,11 +115,14 @@ Template.OBrowserGrid.helpers({
 
   data: () => {
     let { docs, rows, cols } = Template.instance().d.get();
-    let icol = Template.currentData();
-    let irow = Template.parentData();
+    let icol = Template.currentData(),
+      irow = Template.parentData(),
+      ind = (irow-1) * cols + icol - 1;
+    if(!docs[ind])
+      return;
     return {
-      json: docs[(irow-1) * cols + icol - 1]
-    }
+      json: docs[ind]
+    };
   },
 
   width: () => {
