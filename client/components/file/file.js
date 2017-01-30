@@ -742,11 +742,27 @@ IFrameWrapper = React.createClass({
 
     var base = '/api/file/', title = f.title
 
-    if(['html', 'svg', 'uml', 'seq', 'md', 'json'].indexOf(f.extension) != -1)
+    if([
+      'html',
+      'svg',
+      'uml',
+      'seq',
+      'md',
+      'json',
+    ].indexOf(f.extension) != -1) {
       Session.set('lastLoaded', f)
+    }
 
-    if(['md', 'uml', 'seq', 'jpg', 'png', 'jpeg'].indexOf(f.extension) != -1)
+    if([
+      'md',
+      'uml',
+      'seq',
+      'jpg',
+      'png',
+      'jpeg',
+    ].indexOf(f.extension) != -1) {
       base = '/file/'
+    }
     else if(['js', 'css'].indexOf(f.extension) != -1) {
       var last = Session.get('lastLoaded')
       if(last) {
