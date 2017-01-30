@@ -760,6 +760,7 @@ IFrameWrapper = React.createClass({
       'jpg',
       'png',
       'jpeg',
+      'kmodel',
     ].indexOf(f.extension) != -1) {
       base = '/file/'
     }
