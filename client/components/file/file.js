@@ -749,6 +749,7 @@ IFrameWrapper = React.createClass({
       'seq',
       'md',
       'json',
+      'kmodel',
     ].indexOf(f.extension) != -1) {
       Session.set('lastLoaded', f)
     }
