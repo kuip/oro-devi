@@ -1,3 +1,5 @@
+import utf8 from 'utf8';
+
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
   var post = OroFile.findOne({_id: id})
@@ -33,14 +35,18 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
     return;
   }
 
-  
-  
+
+
   res.setHeader('Content-Type', FileClass.mime(post.extension));
 
   if(['jpeg', 'jpg', 'png', 'mid', 'wav'].indexOf(post.extension) != -1) {
     post.script = post.script.substring(23)
     post.script = Base64.decode(post.script)
     post.script = toBuffer(post.script)
+  }
+
+  if(['json', 'kmodel'].indexOf(post.extension) != -1) {
+    post.script = utf8.encode(post.script);
   }
   res.end(post.script);
 });
