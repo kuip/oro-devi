@@ -57,15 +57,31 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
 
 Picker.route('/api/insert', function(params, req, res, next) {
   let { extension, title } = params.query,
-    script = req.body;
+    { script } = req.body;
 
+  if(req.method != 'POST') {
+    res.statusCode = 400;
+    res.statusMessage = `Bad request. Should be POST method`;
+    res.end();
+    return;
+  }
   if(!script || !title) {
     res.statusCode = 400;
     res.statusMessage = `Bad request. No ${ !script ? 'script' : 'title' } query found`;
     res.end();
     return;
   }
-  script = JSON.stringify(script);
+
+  if(typeof script == 'object') {
+    script = JSON.stringify(script);
+  }
+
+  if(typeof script != 'string') {
+    res.statusCode = 400;
+    res.statusMessage = `Bad request. Wrong script type`;
+    res.end();
+    return;
+  }
 
   if(!extension)
     extension = 'txt';
