@@ -52,6 +52,36 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
 });
 
 
+Picker.route('/api/insert', function(params, req, res, next) {
+  let { extension, script, title } = params.query;
+
+  if(!script || !title) {
+    res.statusCode = 400;
+    res.statusMessage = `Bad request. No ${ !script ? 'script' : 'title' } query found`;
+    res.end();
+    return;
+  }
+  if(!extension)
+    extension = 'txt';
+
+  let id = OroFile.insert({
+    extension,
+    script,
+    title,
+    creatorId: 'unknown',
+  });
+  console.log('inserted id ', id);
+  if(id) {
+    res.statusCode = 200;
+    res.statusMessage = "Insert Successful";
+  }
+  else {
+    res.statusCode = 500;
+    res.statusMessage = "Internal Server Error. Insert Unsuccessful";
+  }
+  res.end();
+});
+
 function toArrayBuffer(buffer) {
     var ab = new ArrayBuffer(buffer.length);
     var view = new Uint8Array(ab);
