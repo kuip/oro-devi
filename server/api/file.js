@@ -64,6 +64,9 @@ Picker.route('/api/insert', function(params, req, res, next) {
   if(!extension)
     extension = 'txt';
 
+  if(title.indexOf('.') == -1)
+    title += '.' + extension
+
   let id = OroFile.insert({
     extension,
     script,
