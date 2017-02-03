@@ -1,4 +1,7 @@
 import utf8 from 'utf8';
+import bodyParser from 'body-parser';
+Picker.middleware(bodyParser.urlencoded({ extended: false }));
+Picker.middleware(bodyParser.json());
 
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
@@ -53,7 +56,8 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
 
 
 Picker.route('/api/insert', function(params, req, res, next) {
-  let { extension, script, title } = params.query;
+  let { extension, title } = params.query,
+    script = req.body;
 
   if(!script || !title) {
     res.statusCode = 400;
@@ -61,6 +65,8 @@ Picker.route('/api/insert', function(params, req, res, next) {
     res.end();
     return;
   }
+  script = JSON.stringify(script);
+
   if(!extension)
     extension = 'txt';
 
