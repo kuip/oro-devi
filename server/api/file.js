@@ -1,7 +1,9 @@
 import utf8 from 'utf8';
 import bodyParser from 'body-parser';
+
 Picker.middleware(bodyParser.urlencoded({ extended: false }));
 Picker.middleware(bodyParser.json());
+
 
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
@@ -56,19 +58,20 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
 
 
 Picker.route('/api/insert', function(params, req, res, next) {
-  let { extension, title } = params.query,
+  let { extension, title, file } = params.query,
     { script } = req.body;
 
-  if(req.method != 'POST') {
+  if(req.method != 'POST' && !file) {
     res.statusCode = 400;
     res.statusMessage = `Bad request. Should be POST method`;
-    res.end();
+    res.end(res.statusMessage);
     return;
   }
-  if(!script || !title) {
+
+  if(!title || (!script && !file)) {
     res.statusCode = 400;
     res.statusMessage = `Bad request. No ${ !script ? 'script' : 'title' } query found`;
-    res.end();
+    res.end(res.statusMessage);
     return;
   }
 
@@ -76,10 +79,10 @@ Picker.route('/api/insert', function(params, req, res, next) {
     script = JSON.stringify(script);
   }
 
-  if(typeof script != 'string') {
+  if(!file && typeof script != 'string') {
     res.statusCode = 400;
     res.statusMessage = `Bad request. Wrong script type`;
-    res.end();
+    res.end(res.statusMessage);
     return;
   }
 
@@ -89,22 +92,52 @@ Picker.route('/api/insert', function(params, req, res, next) {
   if(title.indexOf('.') == -1)
     title += '.' + extension
 
-  let id = OroFile.insert({
-    extension,
-    script,
-    title,
-    creatorId: 'unknown',
-  });
-  console.log('inserted id ', id);
-  if(id) {
+  // binary file upload, we insert a zero-length file and return the _id
+  // so another put/post can be
+  if(file) {
+    let end = title.lastIndexOf('.'),
+      len = title.length,
+      filename = title.substring(Math.max(0,title.lastIndexOf('/')+1), len),
+      contentType = FileClass.mime(extension);
+
+    if(!contentType) {
+      res.statusCode = 500;
+      res.statusMessage = "Internal Server Error. Unknown Content-Type.";
+      res.end(res.statusMessage);
+    }
+
+    _id = OroUploads.insert({
+      _id: new Meteor.Collection.ObjectID(),
+      filename,
+      contentType,
+      metadata: { },
+      aliases: [ ]
+      }
+    );
     res.statusCode = 200;
     res.statusMessage = "Insert Successful";
+    console.log('inserted _id', _id._str);
+    if(_id) {
+        let id = OroFile.insert({
+          extension,
+          script,
+          title,
+          creatorId: 'unknown',
+          upload: _id._str,
+        });
+        console.log('inserted orofile id ', id);
+        if(id) {
+          res.statusCode = 200;
+          res.statusMessage = "Insert Successful";
+        }
+        else {
+          res.statusCode = 500;
+          res.statusMessage = "Internal Server Error. Insert Unsuccessful";
+        }
+    }
+    res.end('POST file to `/gridfs/orouploads/post/' + _id + '`');
+    return;
   }
-  else {
-    res.statusCode = 500;
-    res.statusMessage = "Internal Server Error. Insert Unsuccessful";
-  }
-  res.end();
 });
 
 function toArrayBuffer(buffer) {
