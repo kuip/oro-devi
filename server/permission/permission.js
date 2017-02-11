@@ -18,3 +18,12 @@ OroFile.deny({
     return false
   }
 });
+
+OroUploads.allow({
+  // This rule secures the HTTP REST interfaces' PUT/POST
+  // Necessary to support Resumable.js
+  write: function (userId, file, fields) {
+    // Only owners can upload file data
+    return true; //(userId === file.metadata.owner);
+  }
+});

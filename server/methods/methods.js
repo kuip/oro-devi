@@ -1,4 +1,4 @@
-fs = Npm.require('fs')
+import fs from 'fs';
 ROOT = process.env.PWD
 
 Meteor.methods({

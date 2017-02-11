@@ -18,6 +18,7 @@
     "react-addons-update": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-router": "^3.0.0",
+    "request": "^2.79.0",
     "svg.js": "^2.3.6",
     "utf8": "^2.1.2"
   }

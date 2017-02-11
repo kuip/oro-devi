@@ -1,7 +1,50 @@
 import utf8 from 'utf8';
 import bodyParser from 'body-parser';
+import request from 'request';
+//import busboy from 'busboy';
+
 Picker.middleware(bodyParser.urlencoded({ extended: false }));
 Picker.middleware(bodyParser.json());
+
+/*Picker.middleware((req, res, next) => {
+  console.log('-------------------------------------------middleware--------')
+  //console.log(req)
+  let url = req.url;
+  console.log('url', url)
+  if(req.method != 'POST' || url.indexOf('api/insert') < 0) {
+    console.log('go to next')
+    next();
+    return;
+  }
+  console.log('still busboy')
+  var busb = new busboy({ headers: req.headers });
+  busb.on('file', function(fieldname, file, filename, encoding, mimetype) {
+    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+    file.on('data', function(data) {
+      console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+    });
+    file.on('end', function() {
+      console.log('File [' + fieldname + '] Finished');
+      req.file = { file, filename, encoding, mimetype };
+      //file.pipe(fs.createWriteStream(saveTo));
+    });
+  });
+  busb.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+    console.log('Field [' + fieldname + ']: value: ' + inspect(val));
+  });
+  busb.on('finish', function() {
+    console.log('Done parsing form!');
+    res.writeHead(303, { Connection: 'close', Location: '/' });
+    next();
+    //res.end();
+  });
+  req.pipe(busb);
+
+  console.log('--------------------END-----------------------middleware--------')
+  //next();
+  //return;
+});
+*/
 
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
@@ -26,7 +69,9 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
       res.end();
       return;
     }
-    res.writeHead(301, {Location: "/gridfs/orouploads/" + upload.md5});
+
+    let filename = post.title.substring((post.title.lastIndexOf('/') + 1) || 0);
+    res.writeHead(301, {Location: "/gridfs/orouploads/" + upload.md5 + '?filename=' + filename});
     res.end();
     return;
   }
@@ -54,57 +99,48 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
   res.end(post.script);
 });
 
-
 Picker.route('/api/insert', function(params, req, res, next) {
-  let { extension, title } = params.query,
-    { script } = req.body;
+  console.log('hererere')
+  if (req.url.indexOf('/api/insert') < 0) {
+    next();
+    return;
+  }
 
-  if(req.method != 'POST') {
+  let method = 'POST';
+  if (req.method != method) {
     res.statusCode = 400;
     res.statusMessage = `Bad request. Should be POST method`;
-    res.end();
-    return;
-  }
-  if(!script || !title) {
-    res.statusCode = 400;
-    res.statusMessage = `Bad request. No ${ !script ? 'script' : 'title' } query found`;
-    res.end();
+    res.end(res.statusMessage);
     return;
   }
 
-  if(typeof script == 'object') {
-    script = JSON.stringify(script);
-  }
+  let _id,
+    { extension, title } = params.query,
+    script,
+    contentType = FileClass.mime(extension),
+    filename = title,
+    inserted = {
+    _id: new Meteor.Collection.ObjectID(),
+    filename,
+    contentType,
+    metadata: { },
+    aliases: [ ]
+  };
+  _id = OroUploads.insert(inserted);
 
-  if(typeof script != 'string') {
-    res.statusCode = 400;
-    res.statusMessage = `Bad request. Wrong script type`;
-    res.end();
-    return;
-  }
+  console.log('inserted _id', _id);
 
-  if(!extension)
-    extension = 'txt';
-
-  if(title.indexOf('.') == -1)
-    title += '.' + extension
+  let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + _id;
+  req.pipe(request.post(postpath));
 
   let id = OroFile.insert({
     extension,
     script,
     title,
     creatorId: 'unknown',
+    upload: _id._str,
   });
-  console.log('inserted id ', id);
-  if(id) {
-    res.statusCode = 200;
-    res.statusMessage = "Insert Successful";
-  }
-  else {
-    res.statusCode = 500;
-    res.statusMessage = "Internal Server Error. Insert Unsuccessful";
-  }
-  res.end();
+  console.log('inserted orofile id ', id);
 });
 
 function toArrayBuffer(buffer) {

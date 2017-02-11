@@ -49,8 +49,10 @@ FileComponent = React.createClass({
       if(doc && doc.upload) {
         handle2 = Meteor.subscribe('fileuploads', {_id: doc.upload});
         file = OroUploads.findOne( new Mongo.ObjectID(doc.upload));
-        if(file)
-          window.location.href = '/gridfs/orouploads/' + file.md5;
+        if(file) {
+          let filename = doc.title.substring((doc.title.lastIndexOf('/') + 1) || 0);
+          window.location.href = '/gridfs/orouploads/' + file.md5 + '?filename=' + filename;
+        }
         else
           doc = null;
       }
