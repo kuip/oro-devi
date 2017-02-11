@@ -69,7 +69,9 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
       res.end();
       return;
     }
-    res.writeHead(301, {Location: "/gridfs/orouploads/" + upload.md5});
+
+    let filename = post.title.substring((post.title.lastIndexOf('/') + 1) || 0);
+    res.writeHead(301, {Location: "/gridfs/orouploads/" + upload.md5 + '?filename=' + filename});
     res.end();
     return;
   }
