@@ -39,13 +39,9 @@ Picker.middleware(bodyParser.json());
     //res.end();
   });
   req.pipe(busb);
-
   console.log('--------------------END-----------------------middleware--------')
-  //next();
-  //return;
 });
 */
-
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
   var post = OroFile.findOne({_id: id})
@@ -141,6 +137,15 @@ Picker.route('/api/insert', function(params, req, res, next) {
     upload: _id._str,
   });
   console.log('inserted orofile id ', id);
+  if(_id && id) {
+    res.statusCode = 200;
+    res.statusMessage = `Success. Inserted ids: ` + _id + `; ` + id;
+  }
+  else {
+    res.statusCode = 500;
+    res.statusMessage = `Internal server error. Inserted ids: ` + _id + `; ` + id;
+  }
+  res.end(res.statusMessage);
 });
 
 function toArrayBuffer(buffer) {
