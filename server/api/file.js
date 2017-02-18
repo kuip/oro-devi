@@ -61,6 +61,7 @@ Picker.middleware((req, res, next) => {
 });
 
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   var id = decodeURIComponent(params[0])
   var post = OroFile.findOne({_id: id})
   if(!post)
