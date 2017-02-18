@@ -1,50 +1,64 @@
 import utf8 from 'utf8';
 import bodyParser from 'body-parser';
 import request from 'request';
-//import busboy from 'busboy';
+import busboy from 'busboy';
 
 Picker.middleware(bodyParser.urlencoded({ extended: false }));
 Picker.middleware(bodyParser.json());
 
-/*Picker.middleware((req, res, next) => {
+Picker.middleware((req, res, next) => {
   console.log('-------------------------------------------middleware--------')
   //console.log(req)
-  let url = req.url;
-  console.log('url', url)
+  let { url } = req,
+    query = {};
+
   if(req.method != 'POST' || url.indexOf('api/insert') < 0) {
-    console.log('go to next')
+    //console.log('go to next')
     next();
     return;
   }
-  console.log('still busboy')
+
+  url.substring(url.lastIndexOf('?')+1).split('&').forEach((s) => {
+    let pair = s.split('=');
+    query[pair[0]] = pair[1];
+  });
+  let { title } = query,
+    extension = title.substring(title.lastIndexOf('.')+1);
+  console.log(title, extension);
+
+  if(['json'].indexOf(extension) < 0) {
+    //console.log('go to next')
+    next();
+    return;
+  }
+
   var busb = new busboy({ headers: req.headers });
   busb.on('file', function(fieldname, file, filename, encoding, mimetype) {
     console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+    let txt = '';
+    file.setEncoding('utf8');
     file.on('data', function(data) {
-      console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+      //console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+      if(data) txt += data;
     });
     file.on('end', function() {
       console.log('File [' + fieldname + '] Finished');
-      req.file = { file, filename, encoding, mimetype };
+      req._content = txt;
+      //req.file = { file, filename, encoding, mimetype };
       //file.pipe(fs.createWriteStream(saveTo));
     });
   });
-  busb.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+  /*busb.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
     console.log('Field [' + fieldname + ']: value: ' + inspect(val));
-  });
+  });*/
   busb.on('finish', function() {
     console.log('Done parsing form!');
     res.writeHead(303, { Connection: 'close', Location: '/' });
     next();
-    //res.end();
   });
   req.pipe(busb);
-
   console.log('--------------------END-----------------------middleware--------')
-  //next();
-  //return;
 });
-*/
 
 Picker.route('/api/file/(.*)', function(params, req, res, next) {
   var id = decodeURIComponent(params[0])
@@ -100,7 +114,6 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
 });
 
 Picker.route('/api/insert', function(params, req, res, next) {
-  console.log('hererere')
   if (req.url.indexOf('/api/insert') < 0) {
     next();
     return;
@@ -115,32 +128,49 @@ Picker.route('/api/insert', function(params, req, res, next) {
   }
 
   let _id,
-    { extension, title } = params.query,
+    { title } = params.query,
+    extension = title.substring(title.lastIndexOf('.')+1),
     script,
     contentType = FileClass.mime(extension),
     filename = title,
-    inserted = {
-    _id: new Meteor.Collection.ObjectID(),
-    filename,
-    contentType,
-    metadata: { },
-    aliases: [ ]
-  };
-  _id = OroUploads.insert(inserted);
+    oroinsert = {
+      extension,
+      title,
+      creatorId: 'unknown'
+    }
 
-  console.log('inserted _id', _id);
+  if(FileClass.textmime(extension)) {
+    oroinsert.script = req._content;
+    _id = true;
+  }
+  else {
+    let inserted = {
+      _id: new Meteor.Collection.ObjectID(),
+      filename,
+      contentType,
+      metadata: { },
+      aliases: [ ]
+    };
+    _id = OroUploads.insert(inserted);
 
-  let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + _id;
-  req.pipe(request.post(postpath));
+    console.log('inserted _id', _id);
 
-  let id = OroFile.insert({
-    extension,
-    script,
-    title,
-    creatorId: 'unknown',
-    upload: _id._str,
-  });
+    let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + _id;
+    req.pipe(request.post(postpath));
+    oroinsert.upload = _id._str;
+  }
+
+  let id = OroFile.insert(oroinsert);
   console.log('inserted orofile id ', id);
+  if(_id && id) {
+    res.statusCode = 200;
+    res.statusMessage = `Success. Inserted ids: ` + _id + `; ` + id;
+  }
+  else {
+    res.statusCode = 500;
+    res.statusMessage = `Internal server error. Inserted ids: ` + _id + `; ` + id;
+  }
+  res.end(res.statusMessage);
 });
 
 function toArrayBuffer(buffer) {

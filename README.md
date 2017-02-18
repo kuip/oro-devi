@@ -53,9 +53,9 @@ svg
 
 - POST
 ```bash
-curl --progress-bar --raw -X POST -F 'file=@"<TITLE>";type=<MIME TYPE>' '<SERVER URL>/api/insert?extension=<EXTENSION>&title=<TITLE>'
+curl --progress-bar --raw -X POST -F 'file=@"<TITLE>";type=<MIME TYPE>' '<SERVER URL>/api/insert?title=<TITLE WITH EXTENSION>'
 
-curl --progress-bar --raw -X POST -F 'file=@"model2_weights.buf";type=application/octet-stream' 'http://localhost:3000/api/insert?extension=buf&title=test/model3_weights.buf'
+curl --progress-bar --raw -X POST -F 'file=@"model2_weights.buf";type=application/octet-stream' 'http://localhost:3000/api/insert?title=test/model3_weights.buf'
 ```
 
 - GET:
