@@ -19,25 +19,40 @@ Template.Kmodel.onCreated(function() {
 
 });
 
-Template.Kmodel.onRendered(function() {
-  //console.log('Kmodel rendered!!')
-  this.autorun(() => {
-    let { _id, script } = Template.currentData() || {};
-    //console.log("#canvas-panner-" + _id, script ? JSON.parse(script).config.name : '');
-    $("#canvas-panner-" + _id).html('');
-  	if(!script || !_id) {
-      return;
-    }
-    $("#canvas-panner-" + _id).css('background', 'rgba(227,226,229,0.3)');
-    drawModel("canvas-panner-" + _id, JSON.parse(script), _id);
-  });
+Template.Kmodel.onCreated(function() {
+  this.randomId = Random.id();
+  this._id = new ReactiveVar(this.randomId);
 });
 
 Template.Kmodel.helpers({
   id: () => {
     let { _id } = Template.currentData() || {};
-    return _id;
+    return _id || Template.instance()._id.get();
   }
+});
+
+Template.Kmodel.onRendered(function() {
+  let self = this;
+  this.autorun(() => {
+    let { _id, script, keras_version } = Template.currentData() || {};
+    if(!_id && keras_version) {
+      _id = self.randomId;
+      script = Template.currentData();
+    }
+    else if(_id && script) {
+      script = JSON.parse(script);
+    }
+
+    if($("#canvas-panner-" + _id)[0]) {
+      $("#canvas-panner-" + _id).html('');
+    }
+  	if(!script || !_id) {
+      return;
+    }
+    self._id.set(_id);
+    $("#canvas-panner-" + _id).css('background', 'rgba(227,226,229,0.3)');
+    drawModel("canvas-panner-" + _id, script, _id);
+  });
 });
 
 Template.Kmodel.events({

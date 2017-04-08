@@ -27,6 +27,7 @@ react-meteor-data
 base64@1.0.10
 check@1.2.4
 stevezhu:lodash
+random
 
 loredanacirstea:appclass
 aldeed:collection2
