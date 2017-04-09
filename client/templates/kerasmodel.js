@@ -17,12 +17,34 @@ Template.Kmodel.onCreated(function() {
     $('head').append('<script type="application/javascript" src="/api/file/_devicore/keras.js"></script>');
   }
 
-});
-
-Template.Kmodel.onCreated(function() {
+  let self = this;
   this.randomId = Random.id();
   this._id = new ReactiveVar(this.randomId);
+  this.recipe = new ReactiveVar();
+  this.runURL = 'http://localhost:3000/';
+  this.trainURL = 'http://localhost:8888/notebooks/Projects/notebooks/Neurals-default.ipynb?_id=';
+
+  this.trainCallback = function() {
+    let recipe = self.recipe.get();
+    if(recipe)
+      window.open(self.trainURL + recipe._id, '_blank');
+  }
+  this.retrainCallback = function() {
+    let recipe = self.recipe.get();
+    if(recipe)
+      window.open(self.trainURL + recipe._id, '_blank');
+  }
+  this.runCallback = function() {
+    let recipe = self.recipe.get();
+    if(typeof recipe.script == 'string') {
+      recipe.script = JSON.parse(recipe.script);
+    }
+    if(recipe && recipe.script.run)
+      window.open(self.runURL + '?' + recipe._id + '/#/' + recipe.script.run, '_blank');
+  }
+
 });
+
 
 Template.Kmodel.helpers({
   id: () => {
@@ -33,11 +55,13 @@ Template.Kmodel.helpers({
 
 Template.Kmodel.onRendered(function() {
   let self = this;
+
   this.autorun(() => {
-    let { _id, script, keras_version } = Template.currentData() || {};
-    if(!_id && keras_version) {
+    let { _id, script, model, recipe } = Template.currentData() || {};
+    let recipeJson;
+    if(!_id && model) {
       _id = self.randomId;
-      script = Template.currentData();
+      script = model;
     }
     else if(_id && script) {
       script = JSON.parse(script);
@@ -50,8 +74,14 @@ Template.Kmodel.onRendered(function() {
       return;
     }
     self._id.set(_id);
+    if(recipe) {
+      recipeJson = JSON.parse(recipe.script);
+      self.recipe.set(recipe);
+    }
     $("#canvas-panner-" + _id).css('background', 'rgba(227,226,229,0.3)');
-    drawModel("canvas-panner-" + _id, script, _id);
+    let trained = recipeJson.weights ? (recipeJson.weights.buf && recipeJson.weights.json) : 0;
+    let runnable = recipeJson.run;
+    drawModel("canvas-panner-" + _id, script, _id, trained, runnable, self.trainCallback, self.retrainCallback, self.runCallback);
   });
 });
 
