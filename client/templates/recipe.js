@@ -25,8 +25,11 @@ Template.Recipe.onCreated(function() {
 });
 
 Template.Recipe.helpers({
-  kmodel: function() {
+  model: function() {
     return Template.instance().kmodel.get();
+  },
+  recipe: function() {
+    return Template.currentData();
   }
 });
 
