@@ -22,7 +22,7 @@ Template.Kmodel.onCreated(function() {
   this._id = new ReactiveVar(this.randomId);
   this.recipe = new ReactiveVar();
   this.runURL = 'http://localhost:3000/';
-  this.trainURL = 'http://localhost:8888/notebooks/Downloads/Customjs_test.ipynb?_id=';
+  this.trainURL = 'http://localhost:8888/notebooks/Projects/notebooks/Neurals-default.ipynb?_id=';
 
   this.trainCallback = function() {
     let recipe = self.recipe.get();
