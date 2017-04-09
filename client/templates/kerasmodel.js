@@ -43,6 +43,10 @@ Template.Kmodel.onCreated(function() {
       window.open(self.runURL + '?' + recipe._id + '/#/' + recipe.script.run, '_blank');
   }
 
+  this.forkCallback = function() {
+    let recipe = self.recipe.get();
+    Meteor.call('cloneFile', recipe._id);
+  }
 });
 
 
@@ -81,7 +85,17 @@ Template.Kmodel.onRendered(function() {
     $("#canvas-panner-" + _id).css('background', 'rgba(227,226,229,0.3)');
     let trained = recipeJson.weights ? (recipeJson.weights.buf && recipeJson.weights.json) : 0;
     let runnable = recipeJson.run;
-    drawModel("canvas-panner-" + _id, script, _id, trained, runnable, self.trainCallback, self.retrainCallback, self.runCallback);
+    drawModel({
+      selector: "canvas-panner-" + _id,
+      json: script,
+      id: _id,
+      trained,
+      runnable,
+      trainCallback: self.trainCallback,
+      retrainCallback: self.retrainCallback,
+      runCallback: self.runCallback,
+      forkCallback: self.forkCallback
+    });
   });
 });
 
