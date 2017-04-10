@@ -22,7 +22,11 @@ KeditorTemplate = React.createClass({
     if(!script)
       return;
 
-    drawModel("KeditorTemplate", JSON.parse(script));
+    drawModel({
+      selector: "KeditorTemplate",
+      json: JSON.parse(script)
+    });
+
     layer_ndx = "model";
     update_layer(layer_ndx);
 

@@ -196,7 +196,10 @@ FileDisplay = React.createClass({
     }
 
     if(['kmodel'].indexOf(doc.extension) !== -1 && doc.script) {
-      drawModel("canvas-panner", JSON.parse(doc.script));
+      drawModel({
+        selector: "canvas-panner",
+        json: JSON.parse(doc.script)
+      });
     }
   },
 
