@@ -12,7 +12,7 @@ Picker.middleware((req, res, next) => {
   let { url } = req,
     query = {};
 
-  if(req.method != 'POST' || url.indexOf('api/insert') < 0) {
+  if(req.method != 'POST' || url.indexOf('api/upsert') < 0) {
     //console.log('go to next')
     next();
     return;
@@ -22,12 +22,14 @@ Picker.middleware((req, res, next) => {
     let pair = s.split('=');
     query[pair[0]] = pair[1];
   });
-  let { title } = query,
-    extension = title.substring(title.lastIndexOf('.')+1);
-  console.log(title, extension);
+  console.log('query', query)
+  let { title, ext, name } = query
+  title = title || name;
+  let extension = ext || title.substring(title.lastIndexOf('.')+1);
+  console.log(title, extension, ['json'].indexOf(extension));
 
-  if(['json'].indexOf(extension) < 0) {
-    //console.log('go to next')
+  if(['json'].indexOf(extension) == 0) {
+    console.log('go to next')
     next();
     return;
   }
@@ -114,8 +116,8 @@ Picker.route('/api/file/(.*)', function(params, req, res, next) {
   res.end(post.script);
 });
 
-Picker.route('/api/insert', function(params, req, res, next) {
-  if (req.url.indexOf('/api/insert') < 0) {
+Picker.route('/api/upsert', function(params, req, res, next) {
+  if (req.url.indexOf('/api/upsert') < 0) {
     next();
     return;
   }
@@ -127,50 +129,96 @@ Picker.route('/api/insert', function(params, req, res, next) {
     res.end(res.statusMessage);
     return;
   }
+  console.log('params', params)
 
-  let _id,
-    { title } = params.query,
-    extension = title.substring(title.lastIndexOf('.')+1),
+  let uploadId, extant, id,
+    insert = true,
+    { title, _id, name, ext } = params.query,
+    filename = (title || (name + '.' + ext)),
+    extension = filename.substring(filename.lastIndexOf('.')+1),
     script,
     contentType = FileClass.mime(extension),
-    filename = title,
     oroinsert = {
       extension,
-      title,
+      title: (title ? title : (name + '_' + Random.id())),
       creatorId: 'unknown'
     }
+    console.log('oroinsert', oroinsert);
+  extant = OroFile.findOne({$or: [{_id}, {title}]});
 
   if(FileClass.textmime(extension)) {
+    console.log('textmime', extension)
     oroinsert.script = req._content;
-    _id = true;
+    if(extant && req.body) {
+      console.log('file with script exists')
+      console.log(JSON.stringify(req.body));
+      OroFile.update({ _id: extant._id }, {$set: {script: JSON.stringify(req.body)}});
+      res.statusCode = 200;
+      res.statusMessage = `Success. File updated.`,
+      res.end(res.statusMessage);
+      return;
+    }
+    //_id = true;
   }
   else {
-    let inserted = {
-      _id: new Meteor.Collection.ObjectID(),
-      filename,
-      contentType,
-      metadata: { },
-      aliases: [ ]
-    };
-    _id = OroUploads.insert(inserted);
+    //extant = OroFile.findOne({$or: [{_id}, {title}]});
+    // if there is an existing file, it should always have an upload field
+    if(extant) {
+      if(extant.upload) {
+        console.log('we already have a file')
+        uploadId = extant.upload;
+        insert = false;
+      }
+      else {
+        res.statusCode = 500;
+        res.statusMessage = `Internal server error. File found`, JSON.stringify(extant), `. But doesn't have a binary file attached.`;
+        res.end(res.statusMessage)
+        return;
+      }
+    }
+    else {
+      let inserted = {
+        _id: new Meteor.Collection.ObjectID(),
+        filename,
+        contentType,
+        metadata: { },
+        aliases: [ ]
+      };
+      uploadId = OroUploads.insert(inserted);
+      uploadId = uploadId._str;
+      console.log('inserted uploadId', uploadId);
+      if(!uploadId) {
+        res.statusCode = 500;
+        res.statusMessage = `Internal server error. Could not insert binary file.`;
+        res.end(res.statusMessage)
+        return;
+      }
+    }
 
-    console.log('inserted _id', _id);
-
-    let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + _id;
+    let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + new Meteor.Collection.ObjectID(uploadId);
+    console.log('postpath', postpath);
     req.pipe(request.post(postpath));
-    oroinsert.upload = _id._str;
+    oroinsert.upload = uploadId;
+  }
+  if(insert) {
+    console.log('oroinsert2', oroinsert);
+    id = OroFile.insert(oroinsert);
+    console.log('inserted orofile id ', id);
+  }
+  //if(_id && id) {
+  if(insert && id) {
+    res.statusMessage = `Success. Inserted ids: ` + uploadId + `; ` + id;
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify({ _id: id, uploadId: _id, inserted: insert }));
+  }
+  if(!insert && extant) {
+    res.statusMessage = `Success. Uploaded file `, extant._id, `with upload`, uploadId;
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify({ _id: extant._id, title: extant.title, inserted: insert }));
   }
 
-  let id = OroFile.insert(oroinsert);
-  console.log('inserted orofile id ', id);
-  if(_id && id) {
-    res.statusCode = 200;
-    res.statusMessage = `Success. Inserted ids: ` + _id + `; ` + id;
-  }
-  else {
-    res.statusCode = 500;
-    res.statusMessage = `Internal server error. Inserted ids: ` + _id + `; ` + id;
-  }
+  res.statusCode = 500;
+  res.statusMessage = `Internal server error. Inserted ids: ` + uploadId + `; ` + id;
   res.end(res.statusMessage);
 });
 
