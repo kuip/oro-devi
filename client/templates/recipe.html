@@ -1,3 +1,5 @@
 <template name="Recipe">
-	{{>Kmodel model=model recipe=recipe}}
+  {{#if ready}}
+	 {{>Kmodel model=model recipe=recipe _id=_id}}
+  {{/if}}
 </template>
