@@ -62,9 +62,12 @@ Template.Kmodel.onRendered(function() {
 
   this.autorun(() => {
     let { _id, script, model, recipe } = Template.currentData() || {};
+
     let recipeJson;
-    if(!_id && model) {
+    if(!_id) {
       _id = self.randomId;
+    }
+    if(model) {
       script = model;
     }
     else if(_id && script) {
