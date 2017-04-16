@@ -13,7 +13,7 @@ Picker.middleware((req, res, next) => {
     query = {};
 
   if(req.method != 'POST' || url.indexOf('api/upsert') < 0) {
-    //console.log('go to next')
+    console.log('go to next')
     next();
     return;
   }
@@ -26,9 +26,10 @@ Picker.middleware((req, res, next) => {
   let { title, ext, name } = query
   title = title || name;
   let extension = ext || title.substring(title.lastIndexOf('.')+1);
-  console.log(title, extension, ['json'].indexOf(extension));
+  console.log(title, extension, ['json'].indexOf(extension), req.headers);
 
-  if(['json'].indexOf(extension) == 0) {
+  // !!!!!! VI all other files go to the next API where request.pipe is used for file collection
+  if(['json'].indexOf(extension) < 0 || req.headers['content-type'] == 'application/json') {
     console.log('go to next')
     next();
     return;
@@ -50,9 +51,6 @@ Picker.middleware((req, res, next) => {
       //file.pipe(fs.createWriteStream(saveTo));
     });
   });
-  /*busb.on('field', function(fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
-    console.log('Field [' + fieldname + ']: value: ' + inspect(val));
-  });*/
   busb.on('finish', function() {
     console.log('Done parsing form!');
     res.writeHead(303, { Connection: 'close', Location: '/' });
@@ -133,18 +131,20 @@ Picker.route('/api/upsert', function(params, req, res, next) {
 
   let uploadId, extant, id,
     insert = true,
-    { title, _id, name, ext } = params.query,
-    filename = (title || (name + '.' + ext)),
+    { title, _id, name, ext } = params.query;
+  console.log('title, _id, name, ext', title, _id, name, ext)
+  let filename = (title || (name + '.' + ext)),
     extension = filename.substring(filename.lastIndexOf('.')+1),
     script,
-    contentType = FileClass.mime(extension),
-    oroinsert = {
+    contentType = FileClass.mime(extension);
+  console.log('filename, extension, contentType', filename, extension, contentType)
+  let oroinsert = {
       extension,
-      title: (title ? title : (name + '_' + Random.id())),
+      title: (title ? title : (name + '_' + Random.id() + '.' + extension)),
       creatorId: 'unknown'
     }
     console.log('oroinsert', oroinsert);
-  extant = OroFile.findOne({$or: [{_id}, {title}]});
+  extant = OroFile.findOne({$or: [{_id}, {title: filename}]});
 
   if(FileClass.textmime(extension)) {
     console.log('textmime', extension)
@@ -195,7 +195,7 @@ Picker.route('/api/upsert', function(params, req, res, next) {
       }
     }
 
-    let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + new Meteor.Collection.ObjectID(uploadId);
+    let postpath = Meteor.absoluteUrl() + 'gridfs/orouploads/post/' + uploadId;
     console.log('postpath', postpath);
     req.pipe(request.post(postpath));
     oroinsert.upload = uploadId;
