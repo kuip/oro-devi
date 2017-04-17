@@ -45,7 +45,7 @@ Template.Kmodel.onCreated(function() {
 
   this.forkCallback = function() {
     let recipe = self.recipe.get();
-    Meteor.call('cloneFile', recipe._id);
+    Meteor.call('cloneRecipe', recipe._id);
   }
 });
 

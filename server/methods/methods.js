@@ -54,5 +54,73 @@ Meteor.methods({
   },
   countFiles: function(query) {
     return OroFile.find(query).count();
+  },
+  cloneFile: function(_id) {
+    //console.log('cloneFile _id', _id);
+    if(!_id) {
+      throw new Meteor.Error('Invalid _id');
+    }
+    let file = Meteor.call('getFile', _id);
+    if(!file) return;
+    delete file._id;
+    let name = getFileNameRoot(Meteor.call('getFileName', file.title));
+    file.title = name + '_' + Random.id() + '.' + Meteor.call('getFileExt', file.title);
+    file.creatorId = this.userId || (Meteor.userId ? Meteor.userId() : null) || 'unknown';
+
+    return OroFile.insert(file);
+  },
+  cloneRecipe: function(_id) {
+    //console.log('cloneRecipe _id', _id);
+    if(!_id) {
+      throw new Meteor.Error('Invalid _id');
+    }
+    let file, name, script,
+      kmodel, kmId,
+      notebook, nbId,
+      title, id,
+      api = 'api/file/';
+    file = Meteor.call('getFile', _id);
+
+    if(!file) return;
+    delete file._id;
+    name = getFileNameRoot(Meteor.call('getFileName', file.title));
+    file.title = name + '_' + Random.id() + '.' + Meteor.call('getFileExt', file.title);
+    file.creatorId = this.userId || (Meteor.userId ? Meteor.userId() : null) || 'unknown';
+
+    // we don't clone the weights, the model has to be retrained
+    script = JSON.parse(file.script);
+    delete script.weights;
+
+    // clone kmodel
+    title = script.kmodel.substring(script.kmodel.indexOf(api) + api.length);
+    kmId = Meteor.call('cloneFile', title);
+    if(!kmId)
+      throw new Meteor.Error('Keras model could not be cloned');
+    else
+      kmodel = OroFile.findOne(kmId);
+    script.kmodel = Meteor.absoluteUrl() + api + kmodel.title;
+
+    // clone notebook
+    title = script.notebook.substring(script.notebook.indexOf(api) + api.length);
+    nbId = Meteor.call('cloneFile', title);
+    if(!nbId)
+      throw new Meteor.Error('Notebook could not be cloned');
+    else
+      notebook = OroFile.findOne(nbId);
+    script.notebook = Meteor.absoluteUrl()+ api + notebook.title;
+
+    file.script = JSON.stringify(script);
+    id = OroFile.insert(file);
+    console.log('cloneRecipe cloned file id', id);
+    return id;
   }
 })
+
+let getFileNameRoot = function(name) {
+  let idx = name.lastIndexOf('_');
+
+  if(name.length > 18 && idx > -1) {
+    name = name.substring(0, idx);
+  }
+  return name;
+}
