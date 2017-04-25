@@ -34,12 +34,6 @@ aldeed:collection2
 
 meteorhacks:picker
 
-
-service-configuration@1.0.11
-accounts-google@1.1.2
-accounts-twitter@1.2.1
-
-
 mdg:camera
 chuangbo:marked
 jabbslad:basic-auth
@@ -53,3 +47,9 @@ numtel:template-from-string
 loredanacirstea:svgjs
 google-config-ui
 twitter-config-ui
+
+accounts-password
+accounts-google
+oro8oro:base-app
+oro8oro:base-accounts
+oro8oro:rating

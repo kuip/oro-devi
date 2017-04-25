@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactRouter from 'react-router';
 
+import { AccountsComponent } from 'meteor/oro8oro:base-accounts';
+
 const Link = ReactRouter.Link;
 
 // true if we should show an error dialog when there is a connection error.
@@ -48,6 +50,7 @@ AppBody = React.createClass({
       { id: "container" },
       //React.createElement(UserSidebarSection, { user: this.data.currentUser }),
       this.data.disconnected ? React.createElement(ConnectionIssueDialog, null) : "",
+      React.createElement(AccountsComponent),
       React.createElement(
         "div",
         { id: "content-container" },

@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router, Route, IndexRoute, Link, browserHistory } from 'react-router';
 import { customRouter, customRoutes } from '/client/lib/vars';
+import { RatingContainer, QRRatingComponent, RatingBrowserContainer } from 'meteor/oro8oro:rating';
 
 let router, routes;
 
@@ -15,7 +16,10 @@ routes = React.createElement(
   React.createElement(Route, { path: "file/**", component: FileComponent }),
   React.createElement(Route, { path: "svg", component: SvgComponent }),
   React.createElement(Route, { path: "app/**", component: AppComponent }),
-  React.createElement(Route, { path: "keditor(/:id)", component: KeditorComponent })
+  React.createElement(Route, { path: "keditor(/:id)", component: KeditorComponent }),
+  React.createElement(Route, { path: "rating", component: RatingContainer }),
+  React.createElement(Route, { path: "ratings(/:tag)", component: RatingBrowserContainer , data: { apiPath: "rating" } }),
+  React.createElement(Route, { path: "api/rating", component: QRRatingComponent, data: { apiPath: "rating" } })
 );
 
 router = React.createElement(
